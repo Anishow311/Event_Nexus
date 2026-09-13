@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver', '*']
 
 
 # Application definition
@@ -39,14 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage', 
     'django.contrib.staticfiles',
+    'cloudinary',
+    
+    # Internal Modular Apps
+    'apps.core',
     'apps.authentication',
-    'apps.dashboard',
+    'apps.students',
+    'apps.clubs',
     'apps.events',
-    
-
-    
-
+    'apps.administration',
 ]
 
 MIDDLEWARE = [
@@ -144,3 +147,25 @@ MAILERS = {
     },
 }
 AUTH_USER_MODEL = 'authentication.CustomUser'
+# ==============================================================================
+# CLOUDINARY & MEDIA STORAGE CONFIGURATION
+# ==============================================================================
+
+# Configure Cloudinary Storage using the CLOUDINARY_URL from your .env
+CLOUDINARY_STORAGE = {
+    'CLOUDINARY_URL': os.getenv('CLOUDINARY_URL'),
+}
+
+# Media files configuration (Django will use Cloudinary for all ImageFields/FileFields)
+MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# For modern Django (4.2+), you can also define STORAGES:
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}

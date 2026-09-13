@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Command Center - Event Nexus{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#334155]/50 pb-6">
+        <div>
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
+                    Administrator Portal
+                </span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">Campus Management Center</h1>
+            <p class="text-sm text-[#8d90a0] mt-1">Oversee campus student clubs, approve official events, and manage campus users.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/admin/" target="_blank" class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold text-xs btn-glow flex items-center gap-2 shadow-lg shadow-red-500/20">
+                <span class="material-symbols-outlined text-[18px]">database</span>
+                <span>Django SuperAdmin</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">school</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Total Students</span>
+                <h3 class="text-2xl font-bold text-white">Active</h3>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">groups</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Registered Clubs</span>
+                <h3 class="text-2xl font-bold text-white">Verified</h3>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">event</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Published Events</span>
+                <h3 class="text-2xl font-bold text-white">Live</h3>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">security</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Security</span>
+                <h3 class="text-2xl font-bold text-white">Protected</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

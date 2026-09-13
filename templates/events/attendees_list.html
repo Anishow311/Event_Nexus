@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Attendees - {{ event.title }} - Event Nexus{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+
+    <!-- Header & Breadcrumb Navigation -->
+    <div class="flex flex-col gap-3 border-b border-[#334155]/50 pb-6">
+        <a href="{% url 'club_dashboard' %}"
+            class="inline-flex items-center gap-1.5 text-xs text-[#8d90a0] hover:text-white transition-colors w-fit group">
+            <span class="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+            Back to Command Center
+        </a>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                    <span class="px-2.5 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full text-xs font-semibold">
+                        {{ event.category }}
+                    </span>
+                    <span class="px-2.5 py-0.5 {% if event.rsvp_mode == 'CUSTOM' %}bg-purple-500/20 text-purple-300 border-purple-500/30{% elif event.rsvp_mode == 'DIRECT' %}bg-emerald-500/20 text-emerald-300 border-emerald-500/30{% else %}bg-slate-500/20 text-slate-300 border-slate-500/30{% endif %} border rounded-full text-xs font-semibold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[13px]">
+                            {% if event.rsvp_mode == 'CUSTOM' %}dynamic_form{% elif event.rsvp_mode == 'DIRECT' %}touch_app{% else %}block{% endif %}
+                        </span>
+                        {{ event.get_rsvp_mode_display }}
+                    </span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                    {{ event.title }}
+                </h1>
+                <p class="text-xs text-[#8d90a0] mt-1 flex items-center gap-4 flex-wrap">
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px] text-blue-400">calendar_today</span>
+                        {{ event.date|date:"F j, Y" }} at {{ event.time|time:"g:i A" }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px] text-emerald-400">location_on</span>
+                        {{ event.venue }}
+                    </span>
+                </p>
+            </div>
+
+            <!-- Actions Bar -->
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="exportAttendeesToCSV()"
+                    class="px-4 py-2.5 bg-[#1e293b]/70 hover:bg-[#334155]/60 text-white border border-[#334155] rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm">
+                    <span class="material-symbols-outlined text-[16px] text-emerald-400">download</span>
+                    <span>Export CSV</span>
+                </button>
+                <a href="{% url 'club_dashboard' %}"
+                    class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-xs font-bold btn-glow flex items-center gap-1.5 shadow-lg shadow-blue-500/20">
+                    <span class="material-symbols-outlined text-[16px]">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4 shadow-xl">
+            <div class="w-12 h-12 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 shrink-0">
+                <span class="material-symbols-outlined text-2xl">how_to_reg</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Total Registered</span>
+                <h3 class="text-2xl font-black text-white mt-0.5" id="attendees-count-display">{{ total_attendees }}</h3>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4 shadow-xl">
+            <div class="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center border border-blue-500/30 shrink-0">
+                <span class="material-symbols-outlined text-2xl">chair</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Capacity Limit</span>
+                <h3 class="text-2xl font-black text-white mt-0.5">
+                    {% if event.total_seats %}{{ event.total_seats }}{% else %}Unlimited{% endif %}
+                </h3>
+            </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4 shadow-xl">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                <span class="material-symbols-outlined text-2xl">event_available</span>
+            </div>
+            <div>
+                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Registration Status</span>
+                <h3 class="text-lg font-bold text-emerald-400 mt-0.5">
+                    {% if event.rsvp_mode == 'DISABLED' %}Disabled{% else %}Open for Students{% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendees Table Card -->
+    <div class="glass-panel rounded-2xl border border-[#334155]/50 shadow-2xl flex flex-col overflow-hidden">
+        <!-- Table Header Controls (Search & Filter) -->
+        <div class="p-5 md:p-6 border-b border-[#334155]/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-[#0f172a]/40">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[18px]">groups</span>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white">Registered Students</h2>
+                    <p class="text-xs text-[#8d90a0]">List of all attendees signed up for this event.</p>
+                </div>
+            </div>
+
+            <!-- Instant Search Input -->
+            <div class="relative w-full sm:w-72">
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8d90a0] text-[18px]">search</span>
+                <input type="text" id="attendee-search" onkeyup="filterAttendeesTable()"
+                    placeholder="Search by name or email..."
+                    class="w-full bg-[#1e293b]/60 border border-[#334155] rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-[#64748b] outline-none input-glow transition-all">
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        {% if registrations %}
+        <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left border-collapse" id="attendees-table">
+                <thead>
+                    <tr class="border-b border-[#334155]/60 bg-[#0f172a]/60 text-[11px] font-bold text-[#8d90a0] uppercase tracking-wider select-none">
+                        <th class="py-3.5 px-6">#</th>
+                        <th class="py-3.5 px-6">Student Name</th>
+                        <th class="py-3.5 px-6">Email</th>
+                        <th class="py-3.5 px-6">Registration Date</th>
+                        <th class="py-3.5 px-6">Answers</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#334155]/40 text-xs">
+                    {% for reg in registrations %}
+                    <tr class="attendee-row hover:bg-[#1e293b]/40 transition-colors group">
+                        <!-- Index -->
+                        <td class="py-4 px-6 text-[#64748b] font-semibold">
+                            {{ forloop.counter }}
+                        </td>
+
+                        <!-- Student Name & Profile -->
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs shrink-0 shadow-sm">
+                                    {{ reg.student.first_name|first|default:"S" }}{{ reg.student.last_name|first|default:"" }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-white group-hover:text-purple-300 transition-colors attendee-name">
+                                        {{ reg.student.first_name }} {{ reg.student.last_name }}
+                                    </span>
+                                    <div class="flex items-center gap-2 text-[11px] text-[#8d90a0]">
+                                        {% if reg.student.major %}
+                                        <span>{{ reg.student.major }}</span>
+                                        {% endif %}
+                                        {% if reg.student.class_of %}
+                                        <span>• Class of {{ reg.student.class_of }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Email -->
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[#c3c6d7] font-medium attendee-email">{{ reg.student.user.email }}</span>
+                                <button type="button" onclick="copyToClipboard('{{ reg.student.user.email }}', this)"
+                                    class="text-[#8d90a0] hover:text-white transition-colors p-1 rounded-md hover:bg-[#1e293b]"
+                                    title="Copy email">
+                                    <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- Registration Date -->
+                        <td class="py-4 px-6 text-[#8d90a0] whitespace-nowrap">
+                            <div class="flex flex-col">
+                                <span class="text-white font-medium">{{ reg.registered_at|date:"M j, Y" }}</span>
+                                <span class="text-[11px] text-[#64748b]">{{ reg.registered_at|time:"g:i A" }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Custom Form Answers -->
+                        <td class="py-4 px-6">
+                            {% if reg.answers.all %}
+                            <div class="flex flex-col gap-2 max-w-md">
+                                {% for ans in reg.answers.all %}
+                                <div class="p-2.5 rounded-xl bg-[#0f172a]/70 border border-[#334155]/60 text-xs flex flex-col gap-0.5 shadow-sm">
+                                    <span class="text-[11px] font-semibold text-purple-300">
+                                        Q: {{ ans.question.question_text }}
+                                    </span>
+                                    <span class="text-white bg-[#1e293b]/60 px-2 py-1 rounded-lg border border-[#334155]/40 mt-0.5">
+                                        {{ ans.answer_text }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#1e293b]/50 text-[#8d90a0] border border-[#334155]/40 rounded-lg text-[11px]">
+                                <span class="material-symbols-outlined text-[13px] text-blue-400">check_circle</span>
+                                Direct RSVP (No custom answers)
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- Empty State Placeholder -->
+        <div class="py-16 px-6 flex flex-col items-center justify-center text-center">
+            <div class="w-16 h-16 rounded-2xl bg-purple-600/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-4 shadow-xl">
+                <span class="material-symbols-outlined text-4xl">person_off</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">No Attendees Registered Yet</h3>
+            <p class="text-xs text-[#8d90a0] mt-1 max-w-sm">
+                Students who RSVP to this event will appear here automatically with their contact info and custom form responses.
+            </p>
+            <a href="{% url 'club_dashboard' %}"
+                class="mt-6 px-5 py-2.5 bg-[#1e293b] hover:bg-[#334155]/60 text-white border border-[#334155] rounded-xl text-xs font-semibold flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                Return to Dashboard
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Live table filtering by Name or Email
+    function filterAttendeesTable() {
+        const input = document.getElementById('attendee-search');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('.attendee-row');
+
+        rows.forEach(row => {
+            const nameEl = row.querySelector('.attendee-name');
+            const emailEl = row.querySelector('.attendee-email');
+            const nameText = nameEl ? nameEl.textContent.toLowerCase() : '';
+            const emailText = emailEl ? emailEl.textContent.toLowerCase() : '';
+
+            if (nameText.includes(filter) || emailText.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Quick copy to clipboard helper
+    function copyToClipboard(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[15px] text-emerald-400">check</span>';
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+            }, 1500);
+        });
+    }
+
+    // Export Attendees to CSV
+    function exportAttendeesToCSV() {
+        const rows = document.querySelectorAll('#attendees-table tbody tr');
+        if (rows.length === 0) {
+            alert('No attendee data available to export.');
+            return;
+        }
+
+        const csvContent = [];
+        csvContent.push(['#', 'Student Name', 'Email', 'Registration Date', 'Answers']);
+
+        rows.forEach((row, index) => {
+            const nameEl = row.querySelector('.attendee-name');
+            const emailEl = row.querySelector('.attendee-email');
+            const dateEl = row.querySelector('td:nth-child(4) .text-white');
+            const timeEl = row.querySelector('td:nth-child(4) .text-\\[11px\\]');
+            
+            const name = nameEl ? nameEl.textContent.trim() : '';
+            const email = emailEl ? emailEl.textContent.trim() : '';
+            const regDate = (dateEl ? dateEl.textContent.trim() : '') + ' ' + (timeEl ? timeEl.textContent.trim() : '');
+
+            // Collect all Q&A pairs
+            const answerBoxes = row.querySelectorAll('td:nth-child(5) .bg-\\[\\#0f172a\\]\\/70');
+            let answersStr = '';
+            if (answerBoxes.length > 0) {
+                const qaList = [];
+                answerBoxes.forEach(box => {
+                    const qEl = box.querySelector('.text-purple-300');
+                    const aEl = box.querySelector('.text-white');
+                    const q = qEl ? qEl.textContent.trim() : '';
+                    const a = aEl ? aEl.textContent.trim() : '';
+                    qaList.push(`${q} -> ${a}`);
+                });
+                answersStr = qaList.join(' | ');
+            } else {
+                answersStr = 'Direct RSVP';
+            }
+
+            csvContent.push([
+                index + 1,
+                `"${name.replace(/"/g, '""')}"`,
+                `"${email.replace(/"/g, '""')}"`,
+                `"${regDate.replace(/"/g, '""')}"`,
+                `"${answersStr.replace(/"/g, '""')}"`
+            ]);
+        });
+
+        const csvString = csvContent.map(e => e.join(',')).join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `attendees_event_{{ event.id }}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+{% endblock %}

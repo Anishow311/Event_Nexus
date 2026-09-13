@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - Event Nexus{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+
+    <!-- Header & Breadcrumb -->
+    <div class="flex flex-col gap-2 border-b border-[#334155]/50 pb-6">
+        <a href="{% url 'club_dashboard' %}"
+            class="inline-flex items-center gap-1.5 text-xs text-[#8d90a0] hover:text-white transition-colors w-fit">
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            Back to Command Center
+        </a>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight">Create New Event</h1>
+                <p class="text-sm text-[#8d90a0] mt-1">Publish an upcoming workshop, hackathon, or campus meetup.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span
+                    class="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-semibold">
+                    Draft Autosaved
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Creation Form -->
+    <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
+        {% csrf_token %}
+
+        <!-- Basic Information Card -->
+        <div class="glass-panel p-6 md:p-8 rounded-2xl border border-[#334155]/50 flex flex-col gap-6 shadow-xl">
+            <div class="flex items-center gap-3 pb-4 border-b border-[#334155]/40">
+                <div class="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">info</span>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white">General Information</h2>
+                    <p class="text-xs text-[#8d90a0]">Provide the core details of your event.</p>
+                </div>
+            </div>
+
+            <!-- Event Title -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="title">Event Title
+                    <span class="text-red-400">*</span></label>
+                <input type="text" id="title" name="title" required
+                    placeholder="e.g. AI & Full-Stack Development Workshop 2026"
+                    class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl px-4 py-3 text-sm text-white placeholder-[#64748b] outline-none input-glow transition-all">
+            </div>
+
+            <!-- Description -->
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="description">Event
+                    Description <span class="text-red-400">*</span></label>
+                <textarea id="description" name="description" rows="5" required
+                    placeholder="Describe what attendees will learn, agenda, prerequisites, speakers, and perks..."
+                    class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl px-4 py-3 text-sm text-white placeholder-[#64748b] outline-none input-glow transition-all resize-none"></textarea>
+            </div>
+
+            <!-- Category & Venue Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="category">Category
+                        <span class="text-red-400">*</span></label>
+                    <select id="category" name="category" required
+                        class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl px-4 py-3 text-sm text-white outline-none input-glow transition-all cursor-pointer">
+                        <option value="" disabled selected class="bg-[#0f172a] text-[#8d90a0]">Select a category
+                        </option>
+                        <option value="Technical" class="bg-[#0f172a] text-white">Technical & Coding</option>
+                        <option value="Hackathon" class="bg-[#0f172a] text-white">Hackathon / Competition</option>
+                        <option value="Workshop" class="bg-[#0f172a] text-white">Workshop & Hands-on Lab</option>
+                        <option value="Cultural" class="bg-[#0f172a] text-white">Cultural & Arts</option>
+                        <option value="Social" class="bg-[#0f172a] text-white">Social & Mixer</option>
+                        <option value="Sports" class="bg-[#0f172a] text-white">Sports & Fitness</option>
+                        <option value="Seminar" class="bg-[#0f172a] text-white">Guest Seminar / Keynote</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="venue">Venue /
+                        Location <span class="text-red-400">*</span></label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8d90a0] text-[18px]">location_on</span>
+                        <input type="text" id="venue" name="venue" required
+                            placeholder="e.g. Auditorium Hall B, 3rd Floor or Zoom Link"
+                            class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#64748b] outline-none input-glow transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="date">Event Date
+                        <span class="text-red-400">*</span></label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8d90a0] text-[18px]">calendar_today</span>
+                        <input type="date" id="date" name="date" required
+                            class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none input-glow transition-all cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="time">Start Time
+                        <span class="text-red-400">*</span></label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8d90a0] text-[18px]">schedule</span>
+                        <input type="time" id="time" name="time" required
+                            class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none input-glow transition-all cursor-pointer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media & Capacity Card -->
+        <div class="glass-panel p-6 md:p-8 rounded-2xl border border-[#334155]/50 flex flex-col gap-6 shadow-xl">
+            <div class="flex items-center gap-3 pb-4 border-b border-[#334155]/40">
+                <div class="w-9 h-9 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">image</span>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white">Media & Capacity Controls</h2>
+                    <p class="text-xs text-[#8d90a0]">Configure event poster, registration limits, and RSVP behavior.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Image Upload Dropzone -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider">Event Banner Image</label>
+                <label for="image"
+                    class="border-2 border-dashed border-[#334155] hover:border-blue-500/60 bg-[#1e293b]/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:bg-[#1e293b]/50 group">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-blue-500/10 group-hover:bg-blue-500/20 text-blue-400 flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                    </div>
+                    <span class="text-sm font-semibold text-white">Click to upload poster</span>
+                    <span class="text-xs text-[#8d90a0]">PNG, JPG or WebP (Recommended: 1200x630px, max 5MB)</span>
+                    <input type="file" id="image" name="image" accept="image/*" class="hidden"
+                        onchange="previewImage(event)" />
+                </label>
+                <div id="image-preview-container"
+                    class="hidden relative rounded-xl overflow-hidden mt-2 max-h-48 w-full border border-[#334155]">
+                    <img id="image-preview" src="#" alt="Banner Preview" class="w-full h-full object-cover">
+                </div>
+            </div>
+
+            <!-- Total Seats & RSVP Mode Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="total_seats">Seat
+                        Capacity (Optional)</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8d90a0] text-[18px]">event_seat</span>
+                        <input type="number" id="total_seats" name="total_seats" min="1"
+                            placeholder="Leave empty for unlimited"
+                            class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-[#64748b] outline-none input-glow transition-all">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider"
+                            for="rsvp_mode">RSVP Mode</label>
+                        <!-- Build Registration Form Button (Visible only when Custom RSVP is selected) -->
+                        <button type="button" id="build-form-btn" onclick="openCustomFormModal()"
+                            class="hidden inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-sm">
+                            <span>⚙️</span>
+                            <span id="build-form-btn-text">Build Registration Form</span>
+                            <span id="questions-count-badge"
+                                class="hidden px-1.5 py-0.2 bg-purple-500/40 text-white rounded-full text-[10px] font-bold">0</span>
+                        </button>
+                    </div>
+                    <select id="rsvp_mode" name="rsvp_mode" onchange="handleRsvpModeChange()"
+                        class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl px-4 py-3 text-sm text-white outline-none input-glow transition-all cursor-pointer">
+                        <option value="DIRECT" selected class="bg-[#0f172a] text-white">Direct RSVP (1-Click Student
+                            Registration)</option>
+                        <option value="CUSTOM" class="bg-[#0f172a] text-white">Custom RSVP (Dynamic Registration Form)
+                        </option>
+                        <option value="DISABLED" class="bg-[#0f172a] text-white">Disabled (Informational Only)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members-Only Visibility Toggle -->
+        <div class="glass-panel p-5 md:p-6 rounded-2xl border border-[#334155]/50 flex items-center justify-between shadow-xl">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[22px]">lock</span>
+                </div>
+                <div class="flex flex-col">
+                    <label for="is_private" class="text-sm font-bold text-white cursor-pointer select-none flex items-center gap-2">
+                        <span>🔒 Members-Only</span>
+                    </label>
+                    <span class="text-xs text-[#8d90a0]">Restrict event visibility and registrations strictly to approved club members</span>
+                </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none">
+                <input type="checkbox" id="is_private" name="is_private" value="true" class="sr-only peer">
+                <div class="w-11 h-6 bg-[#334155] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+            </label>
+        </div>
+
+        <!-- Hidden input for Custom RSVP Form Questions JSON payload -->
+        <input type="hidden" name="custom_questions_json" id="custom_questions_json" value="[]">
+
+        <!-- Form Actions Bar -->
+        <div class="flex items-center justify-end gap-4 pt-2">
+            <a href="{% url 'club_dashboard' %}"
+                class="px-6 py-3 rounded-xl text-sm font-semibold text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors">
+                Cancel
+            </a>
+            <button type="submit"
+                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm btn-glow flex items-center gap-2 shadow-xl shadow-blue-500/25">
+                <span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+                Publish Event
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Custom RSVP Form Builder Modal (Glass-Panel Popup) -->
+<div id="customFormModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
+    <div id="customFormModalContent"
+        class="glass-panel w-full max-w-2xl rounded-2xl p-6 md:p-8 border border-[#334155]/60 shadow-2xl relative bg-[#0f172a]/95 max-h-[85vh] flex flex-col justify-between">
+
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-[#334155]/50 shrink-0">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-9 h-9 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+                    <span class="material-symbols-outlined text-[20px]">dynamic_form</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-white tracking-tight">Custom Registration Form Builder</h2>
+                    <p class="text-xs text-[#8d90a0]">Add custom questions for students registering for this event.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCustomFormModal()"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Body: Questions Container (Scrollable) -->
+        <div class="py-5 overflow-y-auto no-scrollbar flex flex-col gap-4 flex-1 my-2">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider">Form Questions</span>
+                <button type="button" onclick="addQuestionRow()"
+                    class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">add</span>
+                    <span>Add Question</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Question List -->
+            <div id="questions-list" class="flex flex-col gap-3.5">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Empty State Placeholder inside Modal -->
+            <div id="no-questions-placeholder"
+                class="py-8 flex flex-col items-center justify-center text-center border border-dashed border-[#334155]/60 rounded-xl bg-[#1e293b]/20 p-6">
+                <span class="material-symbols-outlined text-4xl text-[#64748b] mb-2">quiz</span>
+                <p class="text-sm font-semibold text-white">No custom questions added yet</p>
+                <p class="text-xs text-[#8d90a0] mt-1 max-w-xs">Click '+ Add Question' to ask for student portfolio
+                    links, dietary preferences, T-shirt sizes, or team names.</p>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between pt-4 border-t border-[#334155]/50 shrink-0">
+            <button type="button" onclick="closeCustomFormModal()"
+                class="px-5 py-2.5 rounded-xl text-xs font-semibold text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors cursor-pointer">
+                Cancel
+            </button>
+            <button type="button" onclick="saveCustomForm()"
+                class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-xs btn-glow flex items-center gap-2 shadow-lg shadow-purple-500/25 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                <span>Save Form</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Hidden JS State holding the questions
+    let customQuestionsState = [];
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const preview = document.getElementById('image-preview');
+            const container = document.getElementById('image-preview-container');
+            preview.src = URL.createObjectURL(file);
+            container.classList.remove('hidden');
+        }
+    }
+
+    // Toggle Build Registration Form button visibility based on RSVP Mode
+    function handleRsvpModeChange() {
+        const rsvpMode = document.getElementById('rsvp_mode').value;
+        const buildFormBtn = document.getElementById('build-form-btn');
+        if (rsvpMode === 'CUSTOM') {
+            buildFormBtn.classList.remove('hidden');
+        } else {
+            buildFormBtn.classList.add('hidden');
+        }
+    }
+
+    // Modal Control Functions
+    function openCustomFormModal() {
+        const modal = document.getElementById('customFormModal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCustomFormModal() {
+        const modal = document.getElementById('customFormModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Close on backdrop click
+    document.getElementById('customFormModal').addEventListener('click', function (e) {
+        if (e.target === this) closeCustomFormModal();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('customFormModal');
+            if (!modal.classList.contains('hidden')) {
+                closeCustomFormModal();
+            }
+        }
+    });
+
+    // Create a dynamic option item input element
+    function createOptionItem(value = '') {
+        const div = document.createElement('div');
+        div.className = 'option-item-row flex items-center gap-2';
+        div.innerHTML = `
+            <span class="material-symbols-outlined text-[#64748b] text-[16px] select-none shrink-0">radio_button_unchecked</span>
+            <input type="text" class="option-item-input flex-1 bg-[#0f172a]/70 border border-[#334155] rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-[#64748b] outline-none input-glow transition-all"
+                   placeholder="Enter option text..." value="${escapeHtml(value)}">
+            <button type="button" onclick="removeOptionRow(this)"
+                    class="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    title="Remove option">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+            </button>
+        `;
+        return div;
+    }
+
+    // Append a new option input to the question row
+    function addOptionToRow(btn, value = '') {
+        const questionRow = btn.closest('.question-row');
+        const optionsList = questionRow.querySelector('.options-list');
+        const optionItem = createOptionItem(value);
+        optionsList.appendChild(optionItem);
+        if (!value) {
+            const input = optionItem.querySelector('.option-item-input');
+            if (input) input.focus();
+        }
+    }
+
+    // Remove an individual option input
+    function removeOptionRow(btn) {
+        const optionRow = btn.closest('.option-item-row');
+        if (optionRow) {
+            optionRow.remove();
+        }
+    }
+
+    // Add a new dynamic question row
+    function addQuestionRow(title = '', type = 'SHORT_ANSWER', isRequired = true, options = []) {
+        const list = document.getElementById('questions-list');
+        const placeholder = document.getElementById('no-questions-placeholder');
+        placeholder.classList.add('hidden');
+
+        const row = document.createElement('div');
+        row.className = 'question-row glass-panel p-4 rounded-xl border border-[#334155]/60 bg-[#1e293b]/40 flex flex-col gap-3 relative transition-all';
+        row.innerHTML = `
+            <div class="flex items-center gap-3">
+                <div class="flex-1">
+                    <input type="text" class="question-title-input w-full bg-[#0f172a]/60 border border-[#334155] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-[#64748b] outline-none input-glow transition-all"
+                           placeholder="e.g. What is your GitHub profile or portfolio link?" value="${escapeHtml(title)}">
+                </div>
+                <div class="w-40 sm:w-44">
+                    <select class="question-type-select w-full bg-[#0f172a]/60 border border-[#334155] rounded-xl px-3 py-2.5 text-xs text-white outline-none input-glow transition-all cursor-pointer"
+                            onchange="handleQuestionTypeChange(this)">
+                        <option value="SHORT_ANSWER" ${type === 'SHORT_ANSWER' ? 'selected' : ''}>Short Answer</option>
+                        <option value="PARAGRAPH" ${type === 'PARAGRAPH' ? 'selected' : ''}>Paragraph</option>
+                        <option value="MULTIPLE_CHOICE" ${type === 'MULTIPLE_CHOICE' ? 'selected' : ''}>Multiple Choice</option>
+                    </select>
+                </div>
+                <label class="flex items-center gap-1.5 text-xs text-[#8d90a0] cursor-pointer shrink-0 select-none">
+                    <input type="checkbox" class="question-required-checkbox rounded bg-[#0f172a] border-[#334155] text-purple-600 focus:ring-0 focus:ring-offset-0" ${isRequired ? 'checked' : ''}>
+                    <span class="hidden sm:inline">Required</span>
+                </label>
+                <button type="button" onclick="removeQuestionRow(this)"
+                        class="w-8 h-8 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                        title="Remove question">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+            </div>
+            <div class="options-container ${type === 'MULTIPLE_CHOICE' ? '' : 'hidden'} pl-1 pt-2 border-t border-[#334155]/40 flex flex-col gap-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-[#8d90a0] uppercase tracking-wider">Answer Options</span>
+                    <button type="button" onclick="addOptionToRow(this)"
+                            class="px-2.5 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+                        <span class="material-symbols-outlined text-[14px]">add</span>
+                        <span>+ Add Option</span>
+                    </button>
+                </div>
+                <div class="options-list flex flex-col gap-2"></div>
+            </div>
+        `;
+
+        list.appendChild(row);
+
+        const optionsList = row.querySelector('.options-list');
+        const optsArray = Array.isArray(options) ? options : (typeof options === 'string' && options.trim() ? options.split(',').map(s => s.trim()) : []);
+        if (optsArray.length > 0) {
+            optsArray.forEach(opt => {
+                optionsList.appendChild(createOptionItem(opt));
+            });
+        } else if (type === 'MULTIPLE_CHOICE') {
+            optionsList.appendChild(createOptionItem(''));
+            optionsList.appendChild(createOptionItem(''));
+        }
+    }
+
+    // Remove a question row
+    function removeQuestionRow(btn) {
+        const row = btn.closest('.question-row');
+        row.remove();
+
+        const list = document.getElementById('questions-list');
+        const placeholder = document.getElementById('no-questions-placeholder');
+        if (list.children.length === 0) {
+            placeholder.classList.remove('hidden');
+        }
+    }
+
+    // Toggle options field for Multiple Choice
+    function handleQuestionTypeChange(selectElement) {
+        const row = selectElement.closest('.question-row');
+        const optionsContainer = row.querySelector('.options-container');
+        const optionsList = row.querySelector('.options-list');
+        if (selectElement.value === 'MULTIPLE_CHOICE') {
+            optionsContainer.classList.remove('hidden');
+            if (optionsList.children.length === 0) {
+                optionsList.appendChild(createOptionItem(''));
+                optionsList.appendChild(createOptionItem(''));
+            }
+        } else {
+            optionsContainer.classList.add('hidden');
+        }
+    }
+
+    // Save Form state to hidden JS object & input
+    function saveCustomForm() {
+        const rows = document.querySelectorAll('#questions-list .question-row');
+        const questions = [];
+
+        rows.forEach(row => {
+            const title = row.querySelector('.question-title-input').value.trim();
+            const type = row.querySelector('.question-type-select').value;
+            const isRequired = row.querySelector('.question-required-checkbox').checked;
+
+            if (title) {
+                let options = [];
+                if (type === 'MULTIPLE_CHOICE') {
+                    const optionInputs = row.querySelectorAll('.option-item-input');
+                    options = Array.from(optionInputs)
+                        .map(input => input.value.trim())
+                        .filter(val => val.length > 0);
+                }
+
+                const questionObj = {
+                    question_text: title,
+                    question_type: type,
+                    is_required: isRequired,
+                    options: options
+                };
+                questions.push(questionObj);
+            }
+        });
+
+        customQuestionsState = questions;
+        document.getElementById('custom_questions_json').value = JSON.stringify(customQuestionsState);
+
+        // Update badge and button display
+        const badge = document.getElementById('questions-count-badge');
+        if (questions.length > 0) {
+            badge.textContent = questions.length;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+
+        closeCustomFormModal();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Initialize on DOM load in case form reloaded with preset values
+    document.addEventListener('DOMContentLoaded', function () {
+        handleRsvpModeChange();
+    });
+</script>
+{% endblock %}

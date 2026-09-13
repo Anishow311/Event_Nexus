@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}Event Nexus - Campus Connect{% endblock %}</title>
+
+    <!-- Tailwind CSS with Forms and Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Google Fonts: Inter & Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Tailwind Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .glass-panel {
+            background-color: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .btn-glow {
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+        .input-glow {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.35);
+            border-color: #3b82f6;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] text-[#dfe2eb] min-h-screen antialiased flex selection:bg-blue-500/30">
+
+    <!-- Decorative background elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- Left Navigation Sidebar (Desktop) -->
+    <aside class="hidden md:flex flex-col w-64 fixed left-0 top-0 h-screen py-6 px-4 gap-6 glass-panel border-r border-[#334155]/50 z-40">
+        <!-- Branding -->
+        <a href="{% if user.role == 'CLUB' %}{% url 'club_dashboard' %}{% elif user.role == 'ADMIN' %}{% url 'admin_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="flex items-center gap-3 px-2 mb-4 group cursor-pointer">
+            <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md group-hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-[20px]">school</span>
+            </div>
+            <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                Event Nexus
+            </span>
+        </a>
+
+        <!-- Main Navigation (Role-Based) -->
+        <nav class="flex flex-col gap-2">
+            {% if user.role == 'STUDENT' %}
+                <!-- Student Navigation -->
+                <!-- Home -->
+                <a href="{% url 'student_dashboard' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_home %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined" {% block nav_home_icon %}{% endblock %}>home</span>
+                    Home
+                </a>
+
+                <!-- Explore -->
+                <a href="{% url 'explore' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_explore %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined" {% block nav_explore_icon %}{% endblock %}>search</span>
+                    Explore
+                </a>
+
+                <!-- Calendar -->
+                <a href="{% url 'student_calendar' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_calendar %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined" {% block nav_calendar_icon %}{% endblock %}>calendar_month</span>
+                    Calendar
+                </a>
+
+                <!-- Profile -->
+                <a href="{% url 'student_profile' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_profile %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined" {% block nav_profile_icon %}{% endblock %}>person</span>
+                    Profile
+                </a>
+
+            {% elif user.role == 'CLUB' %}
+                <!-- Club Navigation -->
+                <!-- Dashboard -->
+                <a href="{% url 'club_dashboard' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_dashboard %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+
+                <!-- Memberships -->
+                <a href="{% url 'memberships_list' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_memberships %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">group_add</span>
+                    Memberships
+                </a>
+
+                <!-- Public Profile -->
+                <a href="{% url 'club_profile' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">domain</span>
+                    Public Profile
+                </a>
+            {% elif user.role == 'ADMIN' %}
+                <!-- Admin Navigation -->
+                <a href="{% url 'admin_dashboard' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-blue-600/30 transition-colors">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    Admin Panel
+                </a>
+            {% endif %}
+        </nav>
+
+        <!-- Mini Profile Display (Bottom) -->
+        <div class="mt-auto pt-4 border-t border-[#334155]/50">
+            <div class="px-3 flex items-center justify-between">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    {% if user.role == 'STUDENT' %}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg">
+                            {{ user.student_profile.first_name|first|default:"S" }}
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-sm font-semibold text-white truncate">{{ user.student_profile.first_name }} {{ user.student_profile.last_name }}</span>
+                            <span class="text-xs text-[#8d90a0] truncate">{{ user.email }}</span>
+                        </div>
+                    {% elif user.role == 'CLUB' %}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg">
+                            {{ user.club_profile.club_name|first|default:"C" }}
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-sm font-semibold text-white truncate">{{ user.club_profile.club_name|default:"Campus Club" }}</span>
+                            <span class="text-xs text-[#8d90a0] truncate">{{ user.email }}</span>
+                        </div>
+                    {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-600 to-slate-700 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg">
+                            {{ user.username|first|default:"A" }}
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span class="text-sm font-semibold text-white truncate">{{ user.username|default:"Admin" }}</span>
+                            <span class="text-xs text-[#8d90a0] truncate">{{ user.email }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <a href="{% url 'logout' %}" class="text-[#8d90a0] hover:text-red-400 transition-colors ml-2 shrink-0" title="Logout">
+                    <span class="material-symbols-outlined">logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-64 w-full h-screen overflow-y-auto no-scrollbar relative pb-20 md:pb-0">
+        <!-- Mobile Top Header -->
+        <header class="md:hidden glass-panel sticky top-0 z-30 px-4 py-3 border-b border-[#334155]/50 flex justify-between items-center">
+            <span class="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                Event Nexus
+            </span>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white shadow">
+                {% if user.role == 'STUDENT' %}
+                    {{ user.student_profile.first_name|first|default:"S" }}
+                {% elif user.role == 'CLUB' %}
+                    {{ user.club_profile.club_name|first|default:"C" }}
+                {% else %}
+                    A
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Flash Messages Alert Box -->
+        {% if messages %}
+            <div class="max-w-5xl mx-auto px-4 pt-4">
+                {% for message in messages %}
+                    <div class="mb-3 px-4 py-3 rounded-xl border text-sm font-medium flex items-center gap-3 {% if message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-300{% elif message.tags == 'success' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-300{% else %}bg-blue-500/10 border-blue-500/30 text-blue-300{% endif %} shadow-lg backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[20px]">
+                            {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}check_circle{% else %}info{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="md:hidden fixed bottom-0 w-full glass-panel border-t border-[#334155]/50 flex justify-around items-center py-3 px-2 z-50">
+        {% if user.role == 'STUDENT' %}
+            <a href="{% url 'student_dashboard' %}" class="flex flex-col items-center gap-1 {% block mob_nav_home %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+                <span class="material-symbols-outlined" {% block mob_nav_home_icon %}{% endblock %}>home</span>
+                <span class="text-[10px] font-medium">Home</span>
+            </a>
+            <a href="{% url 'explore' %}" class="flex flex-col items-center gap-1 {% block mob_nav_explore %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+                <span class="material-symbols-outlined" {% block mob_nav_explore_icon %}{% endblock %}>search</span>
+                <span class="text-[10px] font-medium">Explore</span>
+            </a>
+            <a href="{% url 'student_calendar' %}" class="flex flex-col items-center gap-1 {% block mob_nav_calendar %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+                <span class="material-symbols-outlined" {% block mob_nav_calendar_icon %}{% endblock %}>calendar_month</span>
+                <span class="text-[10px] font-medium">Schedule</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center gap-1 {% block mob_nav_notifications %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+                <span class="material-symbols-outlined" {% block mob_nav_notifications_icon %}{% endblock %}>notifications</span>
+                <span class="text-[10px] font-medium">Alerts</span>
+            </a>
+            <a href="{% url 'student_profile' %}" class="flex flex-col items-center gap-1 {% block mob_nav_profile %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+                <span class="material-symbols-outlined" {% block mob_nav_profile_icon %}{% endblock %}>person</span>
+                <span class="text-[10px] font-medium">Profile</span>
+            </a>
+        {% elif user.role == 'CLUB' %}
+            <a href="{% url 'club_dashboard' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="text-[10px] font-medium">Dashboard</span>
+            </a>
+            <a href="{% url 'create_event' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span class="text-[10px] font-medium">New Event</span>
+            </a>
+            <a href="{% url 'club_profile' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">domain</span>
+                <span class="text-[10px] font-medium">Profile</span>
+            </a>
+        {% endif %}
+    </nav>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

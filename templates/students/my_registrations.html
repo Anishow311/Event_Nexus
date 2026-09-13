@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Event Nexus - My Registrations{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-6">
+    <div class="flex items-center justify-between border-b border-[#334155]/50 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-1">My Registrations</h1>
+            <p class="text-[#8d90a0]">Events you have RSVP'd to attend.</p>
+        </div>
+        <a href="{% url 'explore' %}" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-sm btn-glow">
+            Find More Events
+        </a>
+    </div>
+
+    <!-- Registrations Loop -->
+    <div class="flex flex-col gap-4">
+        {% for reg in registrations %}
+        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm shrink-0">
+                    <span class="material-symbols-outlined">event_available</span>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-base">{{ reg.event.title }}</h3>
+                    <p class="text-xs text-[#8d90a0]">Organized by {{ reg.event.club.club_name }}</p>
+                    <div class="flex items-center gap-3 text-xs text-[#c3c6d7] mt-1">
+                        <span>{{ reg.event.date|date:"M j, Y" }} at {{ reg.event.time|time:"g:i A" }}</span>
+                        <span>•</span>
+                        <span>{{ reg.event.venue }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-semibold">
+                    Confirmed
+                </span>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Empty State -->
+        <div class="glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
+            <span class="material-symbols-outlined text-5xl text-[#8d90a0]">confirmation_number</span>
+            <h3 class="text-white font-bold text-lg">No active registrations</h3>
+            <p class="text-sm text-[#8d90a0]">RSVP for events from the feed or explore page to see them here.</p>
+            <a href="{% url 'student_dashboard' %}" class="mt-2 px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg font-semibold text-sm hover:bg-blue-600/30 transition-colors">
+                Go to Feed
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

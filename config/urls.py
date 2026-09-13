@@ -20,6 +20,18 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # Authentication
     path("", include("apps.authentication.urls")),
-    path("dashboard/", include("apps.dashboard.urls")),
+
+    # Dedicated Domains
+    path("student/", include("apps.students.urls")),
+    path("club/", include("apps.clubs.urls")),
+    path("events/", include("apps.events.urls")),
+    path("event/", include("apps.events.urls")),
+    path("admin-portal/", include("apps.administration.urls")),
+
+    # Backward Compatibility Aliases for /dashboard/*
+    path("dashboard/student/", include("apps.students.urls")),
+    path("dashboard/club/", include("apps.clubs.urls")),
+    path("dashboard/admin/", include("apps.administration.urls")),
 ]

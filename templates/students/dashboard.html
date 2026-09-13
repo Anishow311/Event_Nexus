@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block title %}Event Nexus - Home{% endblock %}
+
+{% block nav_home %}bg-blue-600/20 text-blue-400 font-semibold border border-blue-500/30{% endblock %}
+{% block nav_home_icon %}style="font-variation-settings: 'FILL' 1;"{% endblock %}
+{% block mob_nav_home %}text-blue-400{% endblock %}
+{% block mob_nav_home_icon %}style="font-variation-settings: 'FILL' 1;"{% endblock %}
+
+{% block content %}
+<!-- The Feed Container -->
+<div class="max-w-2xl mx-auto py-6 px-4 flex flex-col gap-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Feed</h1>
+            <p class="text-sm text-[#c3c6d7]">Discover events and updates from campus clubs</p>
+        </div>
+    </div>
+
+    <!-- Hidden CSRF token for Fetch requests -->
+    <div class="hidden">
+        {% csrf_token %}
+    </div>
+
+    <!-- Feed Filter Tabs -->
+    <div class="flex items-center gap-2 bg-[#0f172a]/60 p-1.5 rounded-xl border border-[#334155]/40 backdrop-blur-md">
+        <button type="button" onclick="filterFeed('all')" id="tab-all"
+            class="feed-tab-btn flex-1 py-2 px-4 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">dynamic_feed</span>
+            <span>All Updates</span>
+        </button>
+        <button type="button" onclick="filterFeed('announcements')" id="tab-announcements"
+            class="feed-tab-btn flex-1 py-2 px-4 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-[#8d90a0] hover:text-white hover:bg-white/5 cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">campaign</span>
+            <span>Announcements</span>
+            {% if posts %}<span class="px-1.5 py-0.2 text-[10px] rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">{{ posts|length }}</span>{% endif %}
+        </button>
+        <button type="button" onclick="filterFeed('events')" id="tab-events"
+            class="feed-tab-btn flex-1 py-2 px-4 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-[#8d90a0] hover:text-white hover:bg-white/5 cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">event</span>
+            <span>Events</span>
+            {% if events %}<span class="px-1.5 py-0.2 text-[10px] rounded-full bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">{{ events|length }}</span>{% endif %}
+        </button>
+    </div>
+
+    <!-- Announcements Loop -->
+    {% for post in posts %}
+    <article class="feed-item post-item glass-panel rounded-2xl overflow-hidden shadow-xl border border-purple-500/30 hover:border-purple-500/50 transition-all">
+        <!-- Club Header -->
+        <div class="p-4 flex items-center justify-between border-b border-[#334155]/30 bg-purple-950/10">
+            <div class="flex items-center gap-3">
+                {% if post.club.logo %}
+                    <img src="{{ post.club.logo.url }}" alt="{{ post.club.club_name }}" class="w-10 h-10 rounded-full object-cover border border-purple-500/40 shadow-sm">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">campaign</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <!-- Dynamic Club Name and Date Posted -->
+                    <a href="{% url 'club_profile_detail' post.club.id %}" class="font-semibold text-white text-sm hover:text-purple-400 transition-colors block">
+                        {{ post.club.club_name }}
+                    </a>
+                    <p class="text-xs text-[#8d90a0] flex items-center gap-1.5">
+                        <span>Posted {{ post.created_at|timesince }} ago</span>
+                        <span class="text-[#475569]">&bull;</span>
+                        <span>{{ post.created_at|date:"M j, Y" }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                {% if post.is_private %}
+                <span class="flex items-center gap-1 bg-amber-500/15 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-md border border-amber-500/30">
+                    <span class="material-symbols-outlined text-[13px]">lock</span> Members Only
+                </span>
+                {% endif %}
+                <div class="bg-purple-600/20 text-purple-400 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide border border-purple-500/30 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">campaign</span>
+                    Announcement
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional Post Image -->
+        {% if post.image %}
+        <div class="w-full max-h-96 bg-[#1e293b] relative border-b border-[#334155]/40 overflow-hidden flex items-center justify-center">
+            <img src="{{ post.image.url }}" alt="Announcement from {{ post.club.club_name }}" class="w-full h-full object-cover"/>
+        </div>
+        {% endif %}
+
+        <!-- Post Content & Actions -->
+        <div class="p-5 flex flex-col gap-4">
+            <p class="text-sm text-[#dfe2eb] leading-relaxed whitespace-pre-line">{{ post.content }}</p>
+
+            <!-- Interaction Bar with Like Button -->
+            <div class="flex items-center justify-between pt-3 border-t border-[#334155]/40">
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                        onclick="togglePostLike(this, event)"
+                        class="post-like-btn flex items-center gap-1.5 text-[#8d90a0] hover:text-pink-500 transition-colors group cursor-pointer"
+                        data-post-id="{{ post.id }}"
+                        title="Like Announcement">
+                        <span class="post-like-icon material-symbols-outlined text-[22px] transition-colors {% if request.user in post.likes.all %}text-pink-500{% else %}text-[#8d90a0] group-hover:text-pink-400{% endif %}"
+                              {% if request.user in post.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
+                        <span class="post-like-count text-sm font-medium text-white">{{ post.likes.count }}</span>
+                    </button>
+                </div>
+
+                <a href="{% url 'club_profile_detail' post.club.id %}" class="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1 transition-colors">
+                    Visit Club Page <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+
+    <!-- Event Loop -->
+    {% for event in events %}
+    <article class="feed-item event-item glass-panel rounded-2xl overflow-hidden shadow-xl border border-[#3b82f6]/20 hover:border-[#3b82f6]/40 transition-all">
+        <!-- Club Header -->
+        <div class="p-4 flex items-center justify-between border-b border-[#334155]/30">
+            <div class="flex items-center gap-3">
+                {% if event.club.logo %}
+                    <img src="{{ event.club.logo.url }}" alt="{{ event.club.club_name }}" class="w-10 h-10 rounded-full object-cover border border-[#3b82f6]/50 shadow-sm">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center text-blue-400 font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">terminal</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <!-- Dynamic Club Name and Time -->
+                    <a href="{% url 'club_profile_detail' event.club.id %}" class="font-semibold text-white text-sm hover:text-blue-400 transition-colors block">
+                        {{ event.club.club_name }}
+                    </a>
+                    <p class="text-xs text-[#8d90a0] flex items-center gap-1.5">
+                        <span>Posted {{ event.created_at|timesince }} ago</span>
+                        <span class="text-[#475569]">&bull;</span>
+                        <span>{{ event.created_at|date:"M j, Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                {% if event.is_private %}
+                <span class="flex items-center gap-1 bg-amber-500/15 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-md border border-amber-500/30">
+                    <span class="material-symbols-outlined text-[13px]">lock</span> Members Only
+                </span>
+                {% endif %}
+                <div class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide border border-blue-500/20 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">event</span>
+                    Event
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Image / Placeholder -->
+        <div class="w-full h-64 bg-[#1e293b] relative border-b border-[#334155]/50">
+            {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover"/>
+            {% else %}
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-purple-900/50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-6xl text-white/20">event</span>
+                </div>
+            {% endif %}
+            <div class="absolute top-3 right-3 bg-[#0a0e14]/80 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md border border-[#334155]">
+                {{ event.category }}
+            </div>
+        </div>
+
+        <!-- Event Details -->
+        <div class="p-5 flex flex-col gap-4">
+            <div>
+                <!-- Dynamic Title and Description -->
+                <h2 class="text-xl font-bold text-white mb-2">{{ event.title }}</h2>
+                <p class="text-sm text-[#c3c6d7] leading-relaxed">{{ event.description }}</p>
+            </div>
+
+            <!-- Date, Time, Venue -->
+            <div class="flex flex-col gap-2 bg-[#0a0e14]/50 rounded-xl p-3 border border-[#334155]/30">
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-blue-400 text-[18px]">calendar_today</span>
+                    <span>{{ event.date|date:"F j, Y" }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-purple-400 text-[18px]">schedule</span>
+                    <span>{{ event.time|time:"g:i A" }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-emerald-400 text-[18px]">location_on</span>
+                    <span>{{ event.venue }}</span>
+                </div>
+            </div>
+
+            <!-- Interaction & RSVP Bar -->
+            <div class="flex items-center justify-between mt-2 pt-4 border-t border-[#334155]/50">
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                        onclick="toggleEventLike(this, event)"
+                        class="like-btn flex items-center gap-1.5 text-[#8d90a0] hover:text-pink-500 transition-colors group cursor-pointer"
+                        data-event-id="{{ event.id }}"
+                        title="Like Event">
+                        <span class="like-icon material-symbols-outlined text-[22px] transition-colors {% if request.user in event.likes.all %}text-pink-500{% else %}text-[#8d90a0] group-hover:text-pink-400{% endif %}"
+                              {% if request.user in event.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
+                        <span class="like-count text-sm font-medium text-white">{{ event.likes.count }}</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Seats & RSVP -->
+                <div class="flex items-center gap-4">
+                    {% if event.total_seats %}
+                    <div class="flex flex-col text-right hidden sm:flex">
+                        <span class="text-[10px] text-[#8d90a0] uppercase tracking-wider font-bold">Total Seats</span>
+                        <span class="text-sm font-bold text-white">{{ event.total_seats }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if event.is_past %}
+                    <button type="button" disabled
+                        class="bg-slate-800/60 text-[#8d90a0] border border-[#334155]/60 px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 cursor-not-allowed select-none"
+                        title="This event has already ended">
+                        <span class="material-symbols-outlined text-[18px] text-[#64748b]">event_busy</span>
+                        Event Ended
+                    </button>
+                    {% elif request.user in event.attendees.all %}
+                    <button type="button" disabled
+                        class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 cursor-not-allowed"
+                        title="You are registered for this event">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        Registered ✓
+                    </button>
+                    {% else %}
+                        {% if event.rsvp_mode == 'CUSTOM' %}
+                        <a href="{% url 'custom_rsvp_form' event.id %}"
+                            class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white px-5 py-2 rounded-lg font-semibold text-sm btn-glow flex items-center gap-1.5 shadow-lg shadow-purple-500/20">
+                            <span class="material-symbols-outlined text-[18px]">dynamic_form</span>
+                            Fill RSVP Form
+                        </a>
+                        {% elif event.rsvp_mode == 'DIRECT' %}
+                        <form method="POST" action="{% url 'rsvp_event' event.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2 rounded-lg font-semibold text-sm btn-glow flex items-center gap-1.5 shadow-lg shadow-blue-500/20 cursor-pointer">
+                                RSVP Now
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+
+    <!-- Filter Empty State (shown by filterFeed when a selected tab has 0 items) -->
+    <div id="filter-empty-state" class="hidden glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
+        <span class="material-symbols-outlined text-5xl text-[#8d90a0]" id="filter-empty-icon">inbox</span>
+        <h3 class="text-white font-bold text-lg" id="filter-empty-title">Nothing to show</h3>
+        <p class="text-sm text-[#8d90a0]" id="filter-empty-desc">There are no items matching this category.</p>
+    </div>
+
+    <!-- Global Empty State (when both events and posts are empty) -->
+    {% if not events and not posts %}
+    <div class="glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
+        <span class="material-symbols-outlined text-5xl text-[#8d90a0]">feed</span>
+        <h3 class="text-white font-bold text-lg">No updates yet</h3>
+        <p class="text-sm text-[#8d90a0]">Clubs haven't posted any events or announcements yet.</p>
+    </div>
+    {% endif %}
+
+    <!-- End of feed indicator -->
+    <div class="text-center py-6 text-[#8d90a0] text-sm flex flex-col items-center gap-2">
+        <span class="material-symbols-outlined text-2xl">check_circle</span>
+        You're all caught up!
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function getCsrfToken() {
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input) return input.value;
+        const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+        return cookie ? cookie.split('=')[1] : '';
+    }
+
+    function filterFeed(type) {
+        const postItems = document.querySelectorAll('.post-item');
+        const eventItems = document.querySelectorAll('.event-item');
+        const emptyState = document.getElementById('filter-empty-state');
+        const emptyIcon = document.getElementById('filter-empty-icon');
+        const emptyTitle = document.getElementById('filter-empty-title');
+        const emptyDesc = document.getElementById('filter-empty-desc');
+
+        const tabAll = document.getElementById('tab-all');
+        const tabAnnouncements = document.getElementById('tab-announcements');
+        const tabEvents = document.getElementById('tab-events');
+
+        const activeClass = 'feed-tab-btn flex-1 py-2 px-4 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md cursor-pointer';
+        const inactiveClass = 'feed-tab-btn flex-1 py-2 px-4 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-[#8d90a0] hover:text-white hover:bg-white/5 cursor-pointer';
+
+        if (tabAll) tabAll.className = (type === 'all') ? activeClass : inactiveClass;
+        if (tabAnnouncements) tabAnnouncements.className = (type === 'announcements') ? activeClass : inactiveClass;
+        if (tabEvents) tabEvents.className = (type === 'events') ? activeClass : inactiveClass;
+
+        let visibleCount = 0;
+
+        if (type === 'all') {
+            postItems.forEach(el => el.classList.remove('hidden'));
+            eventItems.forEach(el => el.classList.remove('hidden'));
+            visibleCount = postItems.length + eventItems.length;
+        } else if (type === 'announcements') {
+            postItems.forEach(el => el.classList.remove('hidden'));
+            eventItems.forEach(el => el.classList.add('hidden'));
+            visibleCount = postItems.length;
+            if (visibleCount === 0 && emptyState) {
+                emptyIcon.textContent = 'campaign';
+                emptyTitle.textContent = 'No announcements';
+                emptyDesc.textContent = "Clubs haven't posted any announcements yet.";
+            }
+        } else if (type === 'events') {
+            postItems.forEach(el => el.classList.add('hidden'));
+            eventItems.forEach(el => el.classList.remove('hidden'));
+            visibleCount = eventItems.length;
+            if (visibleCount === 0 && emptyState) {
+                emptyIcon.textContent = 'event_busy';
+                emptyTitle.textContent = 'No events';
+                emptyDesc.textContent = "Clubs haven't posted any events yet.";
+            }
+        }
+
+        if (emptyState) {
+            if (visibleCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+    }
+
+    async function togglePostLike(btnOrId, btn, event) {
+        let postId = btnOrId;
+        let evt = event;
+
+        if (typeof btnOrId === 'object' && btnOrId && btnOrId.getAttribute) {
+            postId = btnOrId.getAttribute('data-post-id');
+            evt = btn || window.event;
+        }
+
+        if (evt && evt.stopPropagation) evt.stopPropagation();
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/club/post/${postId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    document.querySelectorAll(`.post-like-btn[data-post-id="${postId}"]`).forEach(b => {
+                        const icon = b.querySelector('.post-like-icon');
+                        const countSpan = b.querySelector('.post-like-count');
+
+                        if (countSpan) countSpan.textContent = data.like_count;
+
+                        if (icon) {
+                            if (data.is_liked) {
+                                icon.classList.remove('text-[#8d90a0]');
+                                icon.classList.add('text-pink-500');
+                                icon.style.fontVariationSettings = "'FILL' 1";
+                            } else {
+                                icon.classList.remove('text-pink-500');
+                                icon.classList.add('text-[#8d90a0]');
+                                icon.style.fontVariationSettings = "'FILL' 0";
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling post like:', err);
+        }
+    }
+
+    async function toggleEventLike(btnOrId, btn, event) {
+        let eventId = btnOrId;
+        let evt = event;
+
+        if (typeof btnOrId === 'object' && btnOrId && btnOrId.getAttribute) {
+            eventId = btnOrId.getAttribute('data-event-id');
+            evt = btn || window.event;
+        }
+
+        if (evt && evt.stopPropagation) evt.stopPropagation();
+        if (!eventId) return;
+
+        try {
+            const response = await fetch(`/events/${eventId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    document.querySelectorAll(`.like-btn[data-event-id="${eventId}"]`).forEach(b => {
+                        const icon = b.querySelector('.like-icon');
+                        const countSpan = b.querySelector('.like-count');
+
+                        if (countSpan) countSpan.textContent = data.like_count;
+
+                        if (icon) {
+                            if (data.is_liked) {
+                                icon.classList.remove('text-[#8d90a0]');
+                                icon.classList.add('text-pink-500');
+                                icon.style.fontVariationSettings = "'FILL' 1";
+                            } else {
+                                icon.classList.remove('text-pink-500');
+                                icon.classList.add('text-[#8d90a0]');
+                                icon.style.fontVariationSettings = "'FILL' 0";
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling event like:', err);
+        }
+    }
+</script>
+{% endblock %}

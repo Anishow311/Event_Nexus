@@ -1,0 +1,1238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.club_name|default:"Club Profile" }} - Event Nexus{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<!-- Profile Header Section -->
+<section class="relative w-full">
+    <!-- Cover Banner -->
+    <div
+        class="h-48 md:h-64 w-full bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-950 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent"></div>
+        <div class="absolute top-4 right-4 flex items-center gap-2">
+            <span
+                class="px-3 py-1 bg-black/50 backdrop-blur-md text-purple-300 border border-purple-500/30 rounded-full text-xs font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">verified</span> Verified Organization
+            </span>
+        </div>
+    </div>
+
+    <!-- Club Info & Avatar -->
+    <div
+        class="max-w-5xl mx-auto px-6 relative -mt-16 md:-mt-24 flex flex-col md:flex-row items-end md:items-center gap-6">
+        <!-- Avatar / Logo -->
+        <!-- Avatar / Logo -->
+        <div class="relative group shrink-0">
+            <div
+                class="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#020617] overflow-hidden bg-[#1e293b] shadow-2xl flex items-center justify-center relative z-10 text-5xl md:text-6xl font-extrabold text-purple-400">
+
+                {% if club.logo %}
+                <img src="{{ club.logo.url }}" alt="Club Logo" class="w-full h-full object-cover">
+                {% else %}
+                <span class="material-symbols-outlined text-6xl">groups</span>
+                {% endif %}
+
+            </div>
+
+            {% if is_owner %}
+            <div class="absolute inset-0 rounded-2xl bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 cursor-pointer"
+                onclick="openClubEditModal()">
+                <span class="material-symbols-outlined text-white">photo_camera</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Club Name, Action & Counters -->
+        <div class="flex-1 pt-4 md:pt-24 w-full">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 w-full">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-1.5 flex items-center gap-2">
+                        {{ club.club_name|default:"Developer & Tech Society" }}
+                    </h1>
+                    <p class="text-[#c3c6d7] max-w-2xl text-sm md:text-base leading-relaxed">
+                        {% if club.bio %}
+                        {{ club.bio }}
+                        {% else %}
+                        Official campus student organization dedicated to technology, open-source innovation, and
+                        student project collaborations.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 shrink-0">
+                    {% if is_owner %}
+                    <button type="button" onclick="openClubEditModal()"
+                        class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-sm btn-glow flex items-center gap-2 shadow-lg shadow-purple-500/20 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                        <span>Edit Profile</span>
+                    </button>
+                    {% else %}
+                    <!-- Follow / Unfollow Button -->
+                    {% if request.user in club.followers.all or is_following %}
+                    <button type="button" id="follow-club-btn" class="follow-club-btn px-4 py-2.5 bg-[#1e293b]/90 hover:bg-[#334155] text-purple-300 border border-purple-500/40 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer"
+                        data-club-id="{{ club.id }}" data-url="{% url 'toggle_follow_club' club.id %}">
+                        <span class="material-symbols-outlined text-[18px] text-purple-400">favorite</span>
+                        <span class="follow-btn-text">Unfollow</span>
+                    </button>
+                    {% else %}
+                    <button type="button" id="follow-club-btn" class="follow-club-btn px-4 py-2.5 bg-[#1e293b]/80 hover:bg-purple-600/20 text-[#c3c6d7] hover:text-white border border-[#334155] hover:border-purple-500/50 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer"
+                        data-club-id="{{ club.id }}" data-url="{% url 'toggle_follow_club' club.id %}">
+                        <span class="material-symbols-outlined text-[18px] text-[#8d90a0]">favorite_border</span>
+                        <span class="follow-btn-text">Follow</span>
+                    </button>
+                    {% endif %}
+
+                    <!-- Join / Request Membership Button -->
+                    {% if is_member or user_membership.status == 'approved' %}
+                    <button type="button" id="join-club-btn" class="join-club-btn px-5 py-2.5 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold text-sm flex items-center gap-2 cursor-not-allowed opacity-90 shadow-sm"
+                        data-club-id="{{ club.id }}" data-url="{% url 'request_membership' club.id %}" disabled>
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        <span class="join-btn-text">Member</span>
+                    </button>
+                    {% elif is_pending or user_membership.status == 'pending' %}
+                    <button type="button" id="join-club-btn" class="join-club-btn px-5 py-2.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl font-bold text-sm flex items-center gap-2 cursor-not-allowed opacity-90 shadow-sm"
+                        data-club-id="{{ club.id }}" data-url="{% url 'request_membership' club.id %}" disabled>
+                        <span class="material-symbols-outlined text-[18px]">hourglass_top</span>
+                        <span class="join-btn-text">Request Pending</span>
+                    </button>
+                    {% else %}
+                    <button type="button" id="join-club-btn" class="join-club-btn px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl font-bold text-sm btn-glow flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all duration-200 cursor-pointer"
+                        data-club-id="{{ club.id }}" data-url="{% url 'request_membership' club.id %}">
+                        <span class="material-symbols-outlined text-[18px]">group_add</span>
+                        <span class="join-btn-text">Join Club</span>
+                    </button>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Follower & Member Counters -->
+            <div class="flex gap-8 mt-6 border-t border-[#334155]/50 pt-4">
+                <div class="flex flex-col">
+                    <span id="club-followers-count" class="club-follower-count text-2xl font-bold text-white">{{ followers_count }}</span>
+                    <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold">Followers</span>
+                </div>
+                <div class="flex flex-col">
+                    <span id="club-members-count" class="text-2xl font-bold text-white">{{ members_count }}</span>
+                    <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold">Members</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-bold text-white">{{ events_count }}</span>
+                    <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold">Events Hosted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tabs Header -->
+<div class="w-full border-b border-[#334155]/50 my-8 sticky top-0 z-20 bg-[#020617]/85 backdrop-blur-md">
+    <div class="max-w-5xl mx-auto px-6 flex gap-8">
+        <button id="tab-events-btn" onclick="switchClubTab('events')"
+            class="text-sm py-4 border-b-2 border-purple-500 text-purple-400 font-bold whitespace-nowrap flex items-center gap-2 transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">event</span>
+            Upcoming Events ({{ events.count|default:"0" }})
+        </button>
+        <button id="tab-posts-btn" onclick="switchClubTab('posts')"
+            class="text-sm py-4 border-b-2 border-transparent text-[#8d90a0] hover:text-white font-medium whitespace-nowrap flex items-center gap-2 transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">campaign</span>
+            Recent Posts ({{ posts.count|default:"0" }})
+        </button>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="max-w-5xl mx-auto px-6 pb-16">
+
+    <!-- Tab 1: Upcoming Events Section -->
+    <div id="section-events" class="flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-purple-400">calendar_month</span> Scheduled Events
+            </h2>
+            {% if is_owner %}
+            <a href="{% url 'create_event' %}"
+                class="px-4 py-2 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                <span class="material-symbols-outlined text-[16px]">add</span> Host New Event
+            </a>
+            {% endif %}
+        </div>
+
+        {% if events %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for event in events %}
+            <!-- Event Card -->
+            <div
+                class="activity-card group glass-panel rounded-2xl overflow-hidden border border-[#334155]/50 hover:border-purple-500/40 transition-all flex flex-col shadow-xl cursor-pointer"
+                data-title="{{ event.title }}"
+                data-category="{{ event.category }}"
+                data-date="{{ event.date|date:'F j, Y' }} at {{ event.time|time:'g:i A' }}"
+                data-venue="{{ event.venue }}"
+                data-description="{{ event.description }}"
+                data-rsvps="{{ event.registrations.count|default:'0' }}"
+                data-capacity="{{ event.total_seats|default:'Unlimited' }}"
+                data-image="{% if event.image %}{{ event.image.url }}{% endif %}"
+                data-type="event"
+                data-rsvp-url="{% url 'rsvp_event' event.id %}"
+                data-attendees-url="{% url 'event_attendees' event.id %}">
+                <div class="h-44 bg-[#1e293b] relative overflow-hidden">
+                    <!-- Like Button -->
+                    <button type="button"
+                        onclick="toggleEventLike(this, event)"
+                        class="like-btn absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-all shadow-md group/like cursor-pointer"
+                        data-event-id="{{ event.id }}"
+                        title="Like Event">
+                        <span class="like-icon material-symbols-outlined text-[16px] transition-colors {% if request.user in event.likes.all %}text-pink-500{% else %}text-white/70 group-hover/like:text-pink-400{% endif %}"
+                              {% if request.user in event.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
+                        <span class="like-count font-semibold text-xs text-white">{{ event.likes.count }}</span>
+                    </button>
+
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a]/80 via-transparent to-transparent"></div>
+                    {% else %}
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-blue-900/60 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-5xl text-white/30">event</span>
+                    </div>
+                    {% endif %}
+                    <div class="absolute top-3 right-3 flex items-center gap-1.5">
+                        <span class="bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-purple-300 border border-purple-500/30">
+                            {{ event.category|default:"General" }}
+                        </span>
+                        {% if event.is_private %}
+                        <span class="bg-amber-500/20 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-amber-300 border border-amber-500/30 flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-[12px]">lock</span>
+                            <span>Members Only</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div
+                        class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5 border border-[#334155]">
+                        <span class="material-symbols-outlined text-purple-400 text-[14px]">event</span>
+                        {{ event.date|date:"M d, Y" }}{% if event.time %} • {{ event.time|time:"g:i A" }}{% endif %}
+                    </div>
+                </div>
+                <div class="p-5 flex flex-col gap-3 flex-1 justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
+                            <span>{{ event.title }}</span>
+                            {% if event.is_private %}
+                            <span class="material-symbols-outlined text-amber-400 text-[16px] shrink-0" title="Members Only">lock</span>
+                            {% endif %}
+                        </h3>
+                        <p class="text-xs text-[#8d90a0] mt-1 line-clamp-2">
+                            {{ event.description }}
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-[#334155]/40 text-xs">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[#8d90a0] flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[16px] text-purple-400">group</span>
+                                {{ event.registrations.count|default:"0" }} Registered
+                            </span>
+                            <span class="text-[#8d90a0] flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[16px] text-pink-400">favorite</span>
+                                <span class="card-like-count-{{ event.id }}">{{ event.likes.count }}</span>
+                            </span>
+                        </div>
+                        <span class="text-purple-400 font-semibold truncate max-w-[150px]" title="{{ event.venue }}">
+                            Venue: {{ event.venue }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-panel rounded-2xl p-12 text-center border border-[#334155]/50 flex flex-col items-center justify-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-purple-600/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-3xl">event_busy</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">No Scheduled Events</h3>
+            <p class="text-xs text-[#8d90a0] max-w-sm">This club has not published any upcoming events yet.</p>
+            {% if is_owner %}
+            <a href="{% url 'create_event' %}"
+                class="mt-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-xs btn-glow flex items-center gap-1.5 shadow-lg shadow-purple-500/20">
+                <span class="material-symbols-outlined text-[16px]">add</span> Host New Event
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+
+    <!-- Tab 2: Recent Posts Section (Hidden by default) -->
+    <div id="section-posts" class="hidden flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-purple-400">campaign</span> Announcements & Updates
+            </h2>
+            {% if is_owner %}
+            <a href="{% url 'create_post' %}"
+                class="px-4 py-2 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 border border-purple-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                <span class="material-symbols-outlined text-[16px]">add</span> New Announcement
+            </a>
+            {% endif %}
+        </div>
+
+        {% if posts %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {% for post in posts %}
+            <!-- Dynamic Post Square -->
+            <div class="activity-card group relative aspect-square rounded-2xl overflow-hidden bg-[#1e293b]/70 border border-[#334155]/40 cursor-pointer shadow-lg hover:border-purple-500/60 transition-all"
+                data-title="Announcement by {{ post.club.club_name }}" data-category="Club Announcement"
+                data-date="{{ post.created_at|date:'F j, Y' }} at {{ post.created_at|time:'g:i A' }}"
+                data-venue="Campus Feed" data-description="{{ post.content|escapejs }}"
+                data-rsvps="N/A" data-capacity="N/A"
+                data-image="{% if post.image %}{{ post.image.url }}{% endif %}" data-type="post" data-rsvp-url="#">
+
+                <!-- Like Button -->
+                <button type="button"
+                    onclick="togglePostLike(this, event)"
+                    class="post-like-btn absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center gap-1.5 text-xs text-white/90 hover:text-white transition-all shadow-md group/like cursor-pointer"
+                    data-post-id="{{ post.id }}"
+                    title="Like Announcement">
+                    <span class="post-like-icon material-symbols-outlined text-[16px] transition-colors {% if request.user in post.likes.all %}text-pink-500{% else %}text-white/70 group-hover/like:text-pink-400{% endif %}"
+                          {% if request.user in post.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                        favorite
+                    </span>
+                    <span class="post-like-count font-semibold text-xs text-white">{{ post.likes.count }}</span>
+                </button>
+
+                {% if is_owner %}
+                <!-- Kebab Dropdown Menu -->
+                <div class="absolute top-3 right-3 z-20 dropdown-container" onclick="event.stopPropagation();">
+                    <button type="button" onclick="toggleDropdown(this, event)" class="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/80 hover:text-white transition-all shadow-md cursor-pointer" title="Options">
+                        <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                    </button>
+                    <div class="dropdown-menu hidden absolute right-0 mt-1.5 w-44 py-1.5 bg-[#0f172a]/95 backdrop-blur-md border border-[#334155] rounded-xl shadow-2xl flex flex-col z-30">
+                        <button type="button"
+                            data-edit-url="{% url 'edit_post' post.id %}"
+                            data-content="{{ post.content|escapejs }}"
+                            data-image="{% if post.image %}{{ post.image.url }}{% endif %}"
+                            onclick="openEditPostModal(this, event)"
+                            class="w-full text-left px-3.5 py-2 text-xs text-[#c3c6d7] hover:text-white hover:bg-[#1e293b] flex items-center gap-2 transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[15px] text-blue-400">edit</span>
+                            <span>Edit</span>
+                        </button>
+                        <form action="{% url 'delete_post' post.id %}" method="POST" onsubmit="return confirm('Are you sure you want to delete this announcement?');" class="w-full m-0 p-0" onclick="event.stopPropagation();">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-3.5 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2 transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-[15px]">delete</span>
+                                <span>Delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post Attachment"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-purple-900/40 via-indigo-900/30 to-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">campaign</span>
+                    </div>
+                    <p class="text-xs text-[#c3c6d7] line-clamp-4 font-medium px-2 leading-relaxed">{{ post.content }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Bottom Info Overlay -->
+                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/85 to-transparent flex flex-col justify-end pointer-events-none group-hover:opacity-0 transition-opacity duration-200">
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span class="px-2 py-0.5 w-fit rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            Announcement
+                        </span>
+                        {% if post.is_private %}
+                        <span class="px-2 py-0.5 w-fit rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-[11px]">lock</span>
+                            <span>Members Only</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs font-bold text-white line-clamp-2 leading-snug">
+                        {% if post.is_private %}<span class="material-symbols-outlined text-amber-400 text-[13px] inline-block align-middle mr-1" title="Members Only">lock</span>{% endif %}{{ post.content }}
+                    </p>
+                    <div class="flex items-center gap-2 text-[11px] text-[#8d90a0] mt-1.5">
+                        <span class="material-symbols-outlined text-[13px] text-purple-400">schedule</span>
+                        <span>{{ post.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 bg-black/65 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center p-4 text-center text-white pointer-events-none">
+                    <span class="material-symbols-outlined text-3xl text-purple-400 mb-1.5">visibility</span>
+                    <span class="text-xs font-bold text-white uppercase tracking-wider">View Announcement</span>
+                    <span class="text-[11px] text-[#8d90a0] mt-1">{{ post.created_at|date:"M j, Y" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State if no posts exist yet -->
+        <div class="glass-panel rounded-2xl p-12 text-center border border-[#334155]/50 flex flex-col items-center justify-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-purple-600/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-3xl">campaign</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">No Announcements Yet</h3>
+            <p class="text-xs text-[#8d90a0] max-w-sm">This club has not shared any updates or announcements yet.</p>
+            {% if is_owner %}
+            <a href="{% url 'create_post' %}"
+                class="mt-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-xs btn-glow flex items-center gap-1.5 shadow-lg shadow-purple-500/20">
+                <span class="material-symbols-outlined text-[16px]">add</span> Create First Announcement
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Club Edit Profile Modal Popup -->
+<div id="clubEditModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div id="clubModalContent"
+        class="glass-panel w-full max-w-lg rounded-2xl p-6 md:p-8 border border-[#334155] shadow-2xl scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto no-scrollbar relative bg-[#0f172a]/95">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-[#334155]/50 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">edit_note</span>
+                </div>
+                <h2 class="text-xl font-bold text-white">Edit Club Profile</h2>
+            </div>
+            <button type="button" onclick="closeClubEditModal()"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form action="{% url 'update_club_profile' %}" method="POST" enctype="multipart/form-data"
+            class="flex flex-col gap-4">
+            {% csrf_token %}
+
+            <!-- Club Logo Upload -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider">Club Logo</label>
+                <div class="flex items-center gap-4">
+                    <label for="profile-logo-input"
+                        class="px-4 py-2 bg-[#1e293b] hover:bg-[#334155]/60 border border-[#334155] rounded-xl text-xs font-semibold text-white cursor-pointer transition-colors flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">upload</span>
+                        <span>Upload New Logo</span>
+                        <input type="file" id="profile-logo-input" name="logo" accept="image/*" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Club Name -->
+            <div>
+                <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Club Name</label>
+                <input type="text" name="club_name" value="{{ user.club_profile.club_name }}" required
+                    class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+            </div>
+
+            <!-- Bio / Description -->
+            <div>
+                <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Bio / Description</label>
+                <textarea name="bio" rows="4"
+                    placeholder="Tell students what your club is about, your mission and goals..."
+                    class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none">{{ user.club_profile.bio|default:'' }}</textarea>
+            </div>
+
+            <!-- Category & Email Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Category</label>
+                    <input type="text" name="category" placeholder="e.g. Technology"
+                        value="{{ user.club_profile.category|default:'Technical' }}"
+                        class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Contact Email</label>
+                    <input type="email" name="contact_email" placeholder="club@university.edu"
+                        value="{{ user.club_profile.contact_email|default:user.email }}"
+                        class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-[#334155]/50">
+                <button type="button" onclick="closeClubEditModal()"
+                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-sm btn-glow flex items-center gap-2 shadow-lg shadow-purple-500/20">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Post Glass Modal Popup -->
+<div id="editPostModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
+    <div id="editPostModalContent"
+        class="glass-panel w-full max-w-lg rounded-2xl p-6 md:p-8 border border-[#334155] shadow-2xl relative bg-[#0f172a]/95 max-h-[90vh] overflow-y-auto no-scrollbar">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-[#334155]/50 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">edit_note</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">Edit Announcement</h2>
+                    <p class="text-xs text-[#8d90a0]">Update your announcement text or image</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeEditPostModal()"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Form -->
+        <form id="editPostForm" method="POST" action="" enctype="multipart/form-data"
+            onsubmit="this.querySelector('button[type=submit]').disabled = true; this.querySelector('button[type=submit]').innerText = 'Saving...';"
+            class="flex flex-col gap-5">
+            {% csrf_token %}
+
+            <!-- Announcement Content -->
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider" for="edit-post-modal-content">
+                        Announcement Content <span class="text-red-400">*</span>
+                    </label>
+                    <span id="edit-post-modal-char-count" class="text-[11px] text-[#8d90a0]">0 / 1000</span>
+                </div>
+                <textarea id="edit-post-modal-content" name="content" rows="5" required
+                    maxlength="1000"
+                    oninput="updateEditModalCharCount(this)"
+                    placeholder="Write your announcement..."
+                    class="w-full bg-[#1e293b]/50 border border-[#334155] rounded-xl px-4 py-3 text-sm text-white placeholder-[#64748b] outline-none input-glow transition-all resize-none"></textarea>
+            </div>
+
+            <!-- Image Attachment Upload -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider">
+                    Change Image Attachment (Optional)
+                </label>
+                <label for="edit-post-modal-image-input"
+                    class="border-2 border-dashed border-[#334155] hover:border-blue-500/60 bg-[#1e293b]/30 rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all hover:bg-[#1e293b]/50 group">
+                    <div class="w-9 h-9 rounded-xl bg-blue-500/10 group-hover:bg-blue-500/20 text-blue-400 flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">add_photo_alternate</span>
+                    </div>
+                    <span class="text-xs font-semibold text-white">Upload new image to replace current</span>
+                    <span class="text-[11px] text-[#8d90a0]">Leave empty to keep existing image • PNG, JPG, WEBP</span>
+                    <input type="file" id="edit-post-modal-image-input" name="image" accept="image/*" class="hidden" onchange="previewEditModalPostImage(event)">
+                </label>
+                <div id="edit-post-modal-preview-container" class="hidden relative rounded-xl overflow-hidden mt-1 max-h-48 w-full border border-[#334155]">
+                    <img id="edit-post-modal-preview" src="#" alt="Attachment Preview" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeEditModalPostImage()"
+                        class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer" title="Remove Selection">
+                        <span class="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Members-Only Visibility Toggle -->
+            <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#1e293b]/40 border border-[#334155] hover:border-amber-500/40 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">lock</span>
+                    </div>
+                    <div>
+                        <label for="edit-post-modal-is-private" class="text-xs font-semibold text-white cursor-pointer select-none">
+                            🔒 Members-Only
+                        </label>
+                        <p class="text-[11px] text-[#8d90a0]">Restrict announcement visibility strictly to approved club members</p>
+                    </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="edit-post-modal-is-private" name="is_private" value="true" class="sr-only peer">
+                    <div class="w-11 h-6 bg-[#334155] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+                </label>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#334155]/50">
+                <button type="button" onclick="closeEditPostModal()"
+                    class="px-5 py-2.5 rounded-xl text-xs font-semibold text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-xs btn-glow flex items-center gap-2 shadow-lg shadow-blue-500/25 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Detailed Activity Modal (Instagram-Style Split Popup) -->
+<div id="activityModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div id="activityModalContent"
+        class="glass-panel w-full max-w-4xl rounded-2xl border border-[#334155] shadow-2xl scale-95 transition-all duration-300 max-h-[90vh] overflow-hidden flex flex-col md:flex-row relative bg-[#0f172a]/95">
+
+        <!-- Modal Left Side: Poster / Visual Media -->
+        <div
+            class="w-full md:w-1/2 bg-[#020617] relative min-h-[260px] md:min-h-[460px] flex items-center justify-center border-b md:border-b-0 md:border-r border-[#334155]/50 overflow-hidden">
+            <!-- Custom Image if available -->
+            <img id="modal-image" src="#" alt="Poster" class="hidden w-full h-full object-cover">
+
+            <!-- Default Gradient Placeholder -->
+            <div id="modal-placeholder"
+                class="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-blue-900/50 to-black flex flex-col items-center justify-center p-6 text-center">
+                <div
+                    class="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white mb-3 shadow-xl">
+                    <span id="modal-icon" class="material-symbols-outlined text-4xl">event</span>
+                </div>
+                <span id="modal-category-badge"
+                    class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-xs font-semibold">
+                    Event
+                </span>
+            </div>
+        </div>
+
+        <!-- Modal Right Side: Vertically Scrollable Info Area -->
+        <div class="w-full md:w-1/2 flex flex-col justify-between max-h-[460px] md:max-h-[520px]">
+            <!-- Header Bar -->
+            <div class="p-5 border-b border-[#334155]/50 flex items-center justify-between bg-[#1e293b]/30">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-[20px]">groups</span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white">{{ club.club_name|default:"Campus Club" }}</h4>
+                        <span id="modal-meta-type" class="text-[11px] text-[#8d90a0]">Verified Organizer</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeActivityModal()"
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Scrollable Content Body -->
+            <div class="p-6 overflow-y-auto no-scrollbar flex flex-col gap-4 flex-1">
+                <!-- Title -->
+                <h3 id="modal-title" class="text-xl font-extrabold text-white leading-snug">
+                    Activity Title
+                </h3>
+
+                <!-- Date & Venue Grid -->
+                <div class="flex flex-col gap-2 bg-[#020617]/50 rounded-xl p-3.5 border border-[#334155]/40 text-xs">
+                    <div class="flex items-center gap-2.5 text-[#dfe2eb]">
+                        <span class="material-symbols-outlined text-purple-400 text-[18px]">calendar_today</span>
+                        <span id="modal-date" class="font-medium">Date & Time</span>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-[#dfe2eb]">
+                        <span class="material-symbols-outlined text-emerald-400 text-[18px]">location_on</span>
+                        <span id="modal-venue" class="font-medium">Venue Location</span>
+                    </div>
+                </div>
+
+                <!-- Description / Caption -->
+                <div>
+                    <h5 class="text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Description & Agenda</h5>
+                    <p id="modal-description" class="text-xs text-[#c3c6d7] leading-relaxed whitespace-pre-line">
+                        Full detailed description will appear here.
+                    </p>
+                </div>
+
+                <!-- Capacity / Stats -->
+                <div id="modal-stats-container"
+                    class="flex items-center justify-between p-3 rounded-xl bg-[#1e293b]/40 border border-[#334155]/40 text-xs">
+                    <div>
+                        <span class="text-[#8d90a0] block text-[10px] uppercase font-semibold">Total RSVPs</span>
+                        <span id="modal-rsvps" class="text-sm font-bold text-white">0</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[#8d90a0] block text-[10px] uppercase font-semibold">Seat Limit</span>
+                        <span id="modal-capacity" class="text-sm font-bold text-purple-400">Unlimited</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="p-5 border-t border-[#334155]/50 bg-[#1e293b]/30 flex items-center justify-between gap-3">
+                <button type="button" onclick="closeActivityModal()"
+                    class="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors">
+                    Close
+                </button>
+                {% if request.user.role == 'STUDENT' %}
+                <a id="modal-action-btn" href="#"
+                    class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl text-xs font-bold btn-glow flex items-center gap-2 shadow-lg shadow-purple-500/20">
+                    <span class="material-symbols-outlined text-[16px]">how_to_reg</span>
+                    <span>Register / RSVP</span>
+                </a>
+                {% elif is_owner %}
+                <a id="modal-attendees-btn" href="#"
+                    class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-xs font-bold btn-glow flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                    <span class="material-symbols-outlined text-[16px]">group</span>
+                    <span>👥 View Attendees</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function switchClubTab(tab) {
+        const eventsBtn = document.getElementById('tab-events-btn');
+        const postsBtn = document.getElementById('tab-posts-btn');
+        const eventsSection = document.getElementById('section-events');
+        const postsSection = document.getElementById('section-posts');
+
+        if (tab === 'events') {
+            eventsBtn.className = "text-sm py-4 border-b-2 border-purple-500 text-purple-400 font-bold whitespace-nowrap flex items-center gap-2 transition-all";
+            postsBtn.className = "text-sm py-4 border-b-2 border-transparent text-[#8d90a0] hover:text-white font-medium whitespace-nowrap flex items-center gap-2 transition-all";
+            eventsSection.classList.remove('hidden');
+            postsSection.classList.add('hidden');
+        } else {
+            postsBtn.className = "text-sm py-4 border-b-2 border-purple-500 text-purple-400 font-bold whitespace-nowrap flex items-center gap-2 transition-all";
+            eventsBtn.className = "text-sm py-4 border-b-2 border-transparent text-[#8d90a0] hover:text-white font-medium whitespace-nowrap flex items-center gap-2 transition-all";
+            postsSection.classList.remove('hidden');
+            eventsSection.classList.add('hidden');
+        }
+    }
+
+    function openClubEditModal() {
+        const modal = document.getElementById('clubEditModal');
+        const content = document.getElementById('clubModalContent');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeClubEditModal() {
+        const modal = document.getElementById('clubEditModal');
+        const content = document.getElementById('clubModalContent');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        content.classList.add('scale-95');
+        content.classList.remove('scale-100');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('clubEditModal').addEventListener('click', function (e) {
+        if (e.target === this) closeClubEditModal();
+    });
+
+    // Modal popup logic using data-* attributes
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.activity-card').forEach(function (card) {
+            card.addEventListener('click', function () {
+                const title = this.getAttribute('data-title');
+                const category = this.getAttribute('data-category');
+                const date = this.getAttribute('data-date');
+                const venue = this.getAttribute('data-venue');
+                const description = this.getAttribute('data-description');
+                const rsvps = this.getAttribute('data-rsvps');
+                const capacity = this.getAttribute('data-capacity');
+                const imageUrl = this.getAttribute('data-image');
+                const type = this.getAttribute('data-type');
+                const rsvpUrl = this.getAttribute('data-rsvp-url');
+                const attendeesUrl = this.getAttribute('data-attendees-url');
+
+                openActivityModal(title, category, date, venue, description, rsvps, capacity, imageUrl, type, rsvpUrl, attendeesUrl);
+            });
+        });
+    });
+
+    function openActivityModal(title, category, date, venue, description, rsvps, capacity, imageUrl, type, rsvpUrl, attendeesUrl) {
+        document.getElementById('modal-title').textContent = title || 'Activity Details';
+        document.getElementById('modal-category-badge').textContent = category || (type === 'event' ? 'Event' : 'Announcement');
+        document.getElementById('modal-date').textContent = date || 'Date not specified';
+        document.getElementById('modal-venue').textContent = venue || 'Venue not specified';
+        document.getElementById('modal-description').textContent = description || 'No description provided.';
+        const statsContainer = document.getElementById('modal-stats-container');
+        const actionBtn = document.getElementById('modal-action-btn');
+        const attendeesBtn = document.getElementById('modal-attendees-btn');
+
+        if (type === 'post') {
+            if (statsContainer) statsContainer.classList.add('hidden');
+            if (actionBtn) actionBtn.classList.add('hidden');
+            if (attendeesBtn) attendeesBtn.classList.add('hidden');
+        } else {
+            if (statsContainer) statsContainer.classList.remove('hidden');
+            document.getElementById('modal-rsvps').textContent = rsvps || '0';
+            document.getElementById('modal-capacity').textContent = capacity || 'Unlimited';
+            if (actionBtn) {
+                actionBtn.href = rsvpUrl || '#';
+                actionBtn.classList.remove('hidden');
+            }
+            if (attendeesBtn) {
+                attendeesBtn.href = attendeesUrl || '#';
+                attendeesBtn.classList.remove('hidden');
+            }
+        }
+
+        const modalImg = document.getElementById('modal-image');
+        const modalPlaceholder = document.getElementById('modal-placeholder');
+        const modalIcon = document.getElementById('modal-icon');
+
+        if (imageUrl && imageUrl.trim() !== '') {
+            modalImg.src = imageUrl;
+            modalImg.classList.remove('hidden');
+            modalPlaceholder.classList.add('hidden');
+        } else {
+            modalImg.classList.add('hidden');
+            modalPlaceholder.classList.remove('hidden');
+            modalIcon.textContent = (type === 'event' ? 'event' : 'campaign');
+        }
+
+        const modal = document.getElementById('activityModal');
+        const content = document.getElementById('activityModalContent');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeActivityModal() {
+        const modal = document.getElementById('activityModal');
+        const content = document.getElementById('activityModalContent');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        content.classList.add('scale-95');
+        content.classList.remove('scale-100');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('activityModal').addEventListener('click', function (e) {
+        if (e.target === this) closeActivityModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeActivityModal();
+            closeClubEditModal();
+            closeEditPostModal();
+            document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+                m.classList.add('hidden');
+            });
+        }
+    });
+
+    // Kebab Dropdown Menu Toggle
+    function toggleDropdown(btn, event) {
+        if (event) event.stopPropagation();
+        const container = btn.closest('.dropdown-container');
+        const menu = container.querySelector('.dropdown-menu');
+        
+        // Close all other open dropdowns first
+        document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+            if (m !== menu) {
+                m.classList.add('hidden');
+            }
+        });
+        
+        menu.classList.toggle('hidden');
+    }
+
+    // Close any open dropdowns when clicking anywhere outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown-container')) {
+            document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+                m.classList.add('hidden');
+            });
+        }
+    });
+
+    // Edit Post Modal Logic
+    function openEditPostModal(button, event) {
+        if (event && event.stopPropagation) event.stopPropagation();
+
+        // Close any open kebab dropdown menus
+        document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+            m.classList.add('hidden');
+        });
+
+        let editUrl = '';
+        let content = '';
+        let imageUrl = '';
+        let isPrivate = false;
+
+        if (button instanceof HTMLElement) {
+            editUrl = button.getAttribute('data-edit-url') || '';
+            content = button.getAttribute('data-content') || '';
+            imageUrl = button.getAttribute('data-image') || '';
+            isPrivate = button.getAttribute('data-is-private') === 'true';
+        } else {
+            // Fallback for legacy calls
+            editUrl = `/club/post/${button}/edit/`;
+            content = arguments[1] || '';
+            imageUrl = arguments[2] || '';
+        }
+
+        // Set action URL on the form directly from data-edit-url
+        const form = document.getElementById('editPostForm');
+        if (form && editUrl) {
+            form.action = editUrl;
+        }
+
+        // Set textarea content
+        const textarea = document.getElementById('edit-post-modal-content');
+        if (textarea) {
+            textarea.value = content || '';
+            updateEditModalCharCount(textarea);
+        }
+
+        // Set Members-Only toggle state
+        const privateToggle = document.getElementById('edit-post-modal-is-private');
+        if (privateToggle) {
+            privateToggle.checked = isPrivate;
+        }
+
+        // Handle image preview
+        const previewContainer = document.getElementById('edit-post-modal-preview-container');
+        const previewImg = document.getElementById('edit-post-modal-preview');
+        const input = document.getElementById('edit-post-modal-image-input');
+        if (input) input.value = '';
+
+        if (imageUrl && imageUrl.trim() !== '' && imageUrl !== '#') {
+            if (previewImg) previewImg.src = imageUrl;
+            if (previewContainer) previewContainer.classList.remove('hidden');
+        } else {
+            if (previewImg) previewImg.src = '#';
+            if (previewContainer) previewContainer.classList.add('hidden');
+        }
+
+        const modal = document.getElementById('editPostModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        if (textarea) textarea.focus();
+    }
+
+    function closeEditPostModal() {
+        const modal = document.getElementById('editPostModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        const privateToggle = document.getElementById('edit-post-modal-is-private');
+        if (privateToggle) privateToggle.checked = false;
+    }
+
+    document.getElementById('editPostModal')?.addEventListener('click', function (e) {
+        if (e.target === this) closeEditPostModal();
+    });
+
+    function updateEditModalCharCount(textarea) {
+        const count = textarea.value.length;
+        const charCountEl = document.getElementById('edit-post-modal-char-count');
+        if (charCountEl) charCountEl.textContent = `${count} / 1000`;
+    }
+
+    function previewEditModalPostImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const preview = document.getElementById('edit-post-modal-preview');
+            const container = document.getElementById('edit-post-modal-preview-container');
+            if (preview) preview.src = URL.createObjectURL(file);
+            if (container) container.classList.remove('hidden');
+        }
+    }
+
+    function removeEditModalPostImage() {
+        const input = document.getElementById('edit-post-modal-image-input');
+        const container = document.getElementById('edit-post-modal-preview-container');
+        const preview = document.getElementById('edit-post-modal-preview');
+        if (input) input.value = '';
+        if (preview) preview.src = '#';
+        if (container) container.classList.add('hidden');
+    }
+
+    // Helper to get CSRF token
+    function getCsrfToken() {
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input) return input.value;
+        const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+        return cookie ? cookie.split('=')[1] : '';
+    }
+
+    // Dynamic Like Toggle using Fetch API
+    async function toggleEventLike(btnOrId, btn, event) {
+        let eventId = btnOrId;
+        let evt = event;
+
+        if (typeof btnOrId === 'object' && btnOrId && btnOrId.getAttribute) {
+            eventId = btnOrId.getAttribute('data-event-id');
+            evt = btn;
+        }
+
+        if (evt && evt.stopPropagation) evt.stopPropagation();
+        if (!eventId) return;
+
+        try {
+            const response = await fetch(`/events/${eventId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    // Update all matching like buttons across the DOM
+                    document.querySelectorAll(`.like-btn[data-event-id="${eventId}"]`).forEach(b => {
+                        const icon = b.querySelector('.like-icon');
+                        const countSpan = b.querySelector('.like-count');
+
+                        if (countSpan) countSpan.textContent = data.like_count;
+
+                        if (icon) {
+                            if (data.is_liked) {
+                                icon.classList.remove('text-white/70');
+                                icon.classList.add('text-pink-500');
+                                icon.style.fontVariationSettings = "'FILL' 1";
+                            } else {
+                                icon.classList.remove('text-pink-500');
+                                icon.classList.add('text-white/70');
+                                icon.style.fontVariationSettings = "'FILL' 0";
+                            }
+                        }
+                    });
+
+                    // Update secondary like counter elements
+                    document.querySelectorAll(`.card-like-count-${eventId}`).forEach(span => {
+                        span.textContent = data.like_count;
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling like:', err);
+        }
+    }
+
+    // Dynamic Post Like Toggle using Fetch API
+    async function togglePostLike(btnOrId, btn, event) {
+        let postId = btnOrId;
+        let evt = event;
+
+        if (typeof btnOrId === 'object' && btnOrId && btnOrId.getAttribute) {
+            postId = btnOrId.getAttribute('data-post-id');
+            evt = btn || window.event;
+        }
+
+        if (evt && evt.stopPropagation) evt.stopPropagation();
+        if (!postId) return;
+
+        try {
+            const response = await fetch(`/club/post/${postId}/like/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    // Update all matching post like buttons across the DOM
+                    document.querySelectorAll(`.post-like-btn[data-post-id="${postId}"]`).forEach(b => {
+                        const icon = b.querySelector('.post-like-icon');
+                        const countSpan = b.querySelector('.post-like-count');
+
+                        if (countSpan) countSpan.textContent = data.like_count;
+
+                        if (icon) {
+                            if (data.is_liked) {
+                                icon.classList.remove('text-white/70', 'text-[#8d90a0]');
+                                icon.classList.add('text-pink-500');
+                                icon.style.fontVariationSettings = "'FILL' 1";
+                            } else {
+                                icon.classList.remove('text-pink-500');
+                                icon.classList.add('text-white/70');
+                                icon.style.fontVariationSettings = "'FILL' 0";
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling post like:', err);
+        }
+    }
+
+    // Attach click listeners to any dynamically or statically rendered buttons
+    document.addEventListener('click', function(e) {
+        const likeBtn = e.target.closest('.post-like-btn');
+        if (likeBtn) {
+            e.stopPropagation();
+            e.preventDefault();
+            togglePostLike(likeBtn, null, e);
+            return;
+        }
+
+        const followBtn = e.target.closest('#follow-club-btn, .follow-club-btn');
+        if (followBtn) {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleClubFollow(followBtn, e);
+            return;
+        }
+
+        const joinBtn = e.target.closest('#join-club-btn, .join-club-btn');
+        if (joinBtn) {
+            e.stopPropagation();
+            e.preventDefault();
+            requestClubMembership(joinBtn, e);
+            return;
+        }
+    });
+
+    // Dynamic Club Follow Toggle using Fetch API
+    async function toggleClubFollow(btn, event) {
+        if (event && event.preventDefault) event.preventDefault();
+        if (event && event.stopPropagation) event.stopPropagation();
+        if (!btn || btn.dataset.loading === 'true') return;
+
+        const clubId = btn.getAttribute('data-club-id');
+        const url = btn.getAttribute('data-url') || `/club/${clubId}/follow/`;
+        if (!clubId) return;
+
+        btn.dataset.loading = 'true';
+        btn.classList.add('opacity-75', 'cursor-wait');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ club_id: clubId })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const newCount = (data.follower_count !== undefined) ? data.follower_count : data.followers_count;
+
+                // Update Follower Count on Screen
+                if (newCount !== undefined) {
+                    const counterSpan = document.getElementById('club-followers-count');
+                    if (counterSpan) counterSpan.textContent = newCount;
+                    document.querySelectorAll('.club-follower-count').forEach(el => {
+                        el.textContent = newCount;
+                    });
+                }
+
+                // Update Button State across matching buttons
+                document.querySelectorAll(`.follow-club-btn[data-club-id="${clubId}"], #follow-club-btn[data-club-id="${clubId}"]`).forEach(b => {
+                    const icon = b.querySelector('.material-symbols-outlined');
+                    const textSpan = b.querySelector('.follow-btn-text');
+
+                    if (data.is_followed) {
+                        if (textSpan) textSpan.textContent = 'Unfollow';
+                        if (icon) {
+                            icon.textContent = 'favorite';
+                            icon.className = 'material-symbols-outlined text-[18px] text-purple-400';
+                        }
+                        b.className = 'follow-club-btn px-4 py-2.5 bg-[#1e293b]/90 hover:bg-[#334155] text-purple-300 border border-purple-500/40 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer';
+                    } else {
+                        if (textSpan) textSpan.textContent = 'Follow';
+                        if (icon) {
+                            icon.textContent = 'favorite_border';
+                            icon.className = 'material-symbols-outlined text-[18px] text-[#8d90a0]';
+                        }
+                        b.className = 'follow-club-btn px-4 py-2.5 bg-[#1e293b]/80 hover:bg-purple-600/20 text-[#c3c6d7] hover:text-white border border-[#334155] hover:border-purple-500/50 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer';
+                    }
+                });
+            } else {
+                console.error('Follow request failed with status:', response.status);
+            }
+        } catch (err) {
+            console.error('Error toggling club follow:', err);
+        } finally {
+            btn.dataset.loading = 'false';
+            btn.classList.remove('opacity-75', 'cursor-wait');
+        }
+    }
+
+    // Dynamic Club Membership Request using Fetch API
+    async function requestClubMembership(btn, event) {
+        if (event && event.preventDefault) event.preventDefault();
+        if (event && event.stopPropagation) event.stopPropagation();
+        if (!btn || btn.disabled || btn.dataset.loading === 'true') return;
+
+        const clubId = btn.getAttribute('data-club-id');
+        const url = btn.getAttribute('data-url') || `/club/${clubId}/request-membership/`;
+        if (!clubId) return;
+
+        const textSpan = btn.querySelector('.join-btn-text');
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const originalText = textSpan ? textSpan.textContent : '';
+
+        btn.dataset.loading = 'true';
+        if (textSpan) textSpan.textContent = 'Submitting...';
+        btn.classList.add('opacity-75', 'cursor-wait');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken(),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({ club_id: clubId })
+            });
+
+            const data = await response.json();
+            if (response.ok && (data.success || data.status === 'pending')) {
+                // Update all matching join buttons to 'Request Pending' and disabled
+                document.querySelectorAll(`.join-club-btn[data-club-id="${clubId}"], #join-club-btn[data-club-id="${clubId}"]`).forEach(b => {
+                    b.disabled = true;
+                    b.classList.remove('cursor-pointer', 'opacity-75', 'cursor-wait', 'btn-glow');
+                    b.className = 'join-club-btn px-5 py-2.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl font-bold text-sm flex items-center gap-2 cursor-not-allowed opacity-90 shadow-sm';
+                    
+                    const bText = b.querySelector('.join-btn-text');
+                    const bIcon = b.querySelector('.material-symbols-outlined');
+                    if (bText) bText.textContent = 'Request Pending';
+                    if (bIcon) {
+                        bIcon.textContent = 'hourglass_top';
+                        bIcon.className = 'material-symbols-outlined text-[18px] text-amber-400';
+                    }
+                });
+            } else {
+                if (textSpan) textSpan.textContent = originalText;
+                btn.classList.remove('opacity-75', 'cursor-wait');
+                alert(data.error || data.message || 'Failed to submit membership request.');
+            }
+        } catch (err) {
+            console.error('Error requesting membership:', err);
+            if (textSpan) textSpan.textContent = originalText;
+            btn.classList.remove('opacity-75', 'cursor-wait');
+        } finally {
+            btn.dataset.loading = 'false';
+        }
+    }
+</script>
+{% endblock %}

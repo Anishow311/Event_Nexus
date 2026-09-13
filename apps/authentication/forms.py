@@ -74,4 +74,31 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         label="Password",
         widget=forms.PasswordInput(attrs={'placeholder': 'Enter your password', 'autocomplete': 'current-password'})
-    )
+    )
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(
+        label="Email Address",
+        widget=forms.EmailInput(attrs={'placeholder': 'name@college.edu', 'autocomplete': 'email'})
+    )
+
+
+class ResetPasswordForm(forms.Form):
+    password = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={'placeholder': '••••••••', 'autocomplete': 'new-password'})
+    )
+    confirm_password = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(attrs={'placeholder': '••••••••', 'autocomplete': 'new-password'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")
+        return cleaned_data

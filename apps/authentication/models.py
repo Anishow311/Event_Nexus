@@ -55,9 +55,18 @@ class StudentProfile(models.Model):
     )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    bio = models.TextField(blank=True, null=True, default="Student actively exploring clubs and events on campus.")
+    major = models.CharField(max_length=100, blank=True, null=True)
+    class_of = models.CharField(max_length=20, blank=True, null=True)
+    interests = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    def get_interests_list(self):
+        if self.interests:
+            return [i.strip() for i in self.interests.split(",") if i.strip()]
+        return []
 
 
 class ClubProfile(models.Model):
@@ -67,6 +76,17 @@ class ClubProfile(models.Model):
         related_name="club_profile"
     )
     club_name = models.CharField(max_length=200)
+    
+    # --- NEW FIELDS FOR THE PROFILE ---
+    bio = models.TextField(blank=True, null=True)
+    category = models.CharField(max_length=100, blank=True, null=True, default="General")
+    contact_email = models.EmailField(blank=True, null=True)
+    logo = models.ImageField(upload_to='clubs/logos/', null=True, blank=True)
+    followers = models.ManyToManyField(
+        CustomUser,
+        related_name="followed_clubs",
+        blank=True
+    )
 
     def __str__(self):
         return self.club_name
