@@ -1,0 +1,211 @@
+{% for item in timeline %}
+    {% if item.venue %}
+    <!-- Event Feed Card -->
+    <article class="feed-item event-item glass-panel rounded-2xl overflow-hidden shadow-xl border border-[#3b82f6]/20 hover:border-[#3b82f6]/40 transition-all" data-timestamp="{{ item.created_at|date:'c' }}" data-created-at="{{ item.created_at|date:'c' }}" data-feed-id="event-{{ item.id }}">
+        <!-- Club Header -->
+        <div class="p-4 flex items-center justify-between border-b border-[#334155]/30">
+            <div class="flex items-center gap-3">
+                {% if item.club.logo %}
+                    <img src="{{ item.club.logo.url }}" alt="{{ item.club.club_name }}" class="w-10 h-10 rounded-full object-cover border border-[#3b82f6]/50 shadow-sm">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-[#3b82f6]/20 border border-[#3b82f6]/50 flex items-center justify-center text-blue-400 font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">terminal</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <!-- Dynamic Club Name and Time -->
+                    <a href="{% url 'club_profile_detail' item.club.id %}" class="font-semibold text-white text-sm hover:text-blue-400 transition-colors block">
+                        {{ item.club.club_name }}
+                    </a>
+                    <p class="text-xs text-[#8d90a0] flex items-center gap-1.5">
+                        <span>Posted {{ item.created_at|timesince }} ago</span>
+                        <span class="text-[#475569]">&bull;</span>
+                        <span>{{ item.created_at|date:"M j, Y" }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                {% if item.is_private %}
+                <span class="flex items-center gap-1 bg-amber-500/15 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-md border border-amber-500/30">
+                    <span class="material-symbols-outlined text-[13px]">lock</span> Members Only
+                </span>
+                {% endif %}
+                <div class="bg-blue-600/20 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide border border-blue-500/20 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">event</span>
+                    Event
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Image / Placeholder -->
+        <div class="w-full h-64 bg-[#1e293b] relative border-b border-[#334155]/50">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover"/>
+            {% else %}
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-purple-900/50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-6xl text-white/20">event</span>
+                </div>
+            {% endif %}
+            <div class="absolute top-3 right-3 bg-[#0a0e14]/80 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md border border-[#334155]">
+                {{ item.category }}
+            </div>
+        </div>
+
+        <!-- Event Details -->
+        <div class="p-5 flex flex-col gap-4">
+            <div>
+                <!-- Dynamic Title and Description -->
+                <h2 class="text-xl font-bold text-white mb-2">{{ item.title }}</h2>
+                <p class="text-sm text-[#c3c6d7] leading-relaxed">{{ item.description }}</p>
+            </div>
+
+            <!-- Date, Time, Venue -->
+            <div class="flex flex-col gap-2 bg-[#0a0e14]/50 rounded-xl p-3 border border-[#334155]/30">
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-blue-400 text-[18px]">calendar_today</span>
+                    <span>{{ item.date|date:"F j, Y" }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-purple-400 text-[18px]">schedule</span>
+                    <span>{{ item.time|time:"g:i A" }}</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-[#dfe2eb]">
+                    <span class="material-symbols-outlined text-emerald-400 text-[18px]">location_on</span>
+                    <span>{{ item.venue }}</span>
+                </div>
+            </div>
+
+            <!-- Interaction & RSVP Bar -->
+            <div class="flex items-center justify-between mt-2 pt-4 border-t border-[#334155]/50">
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                        onclick="toggleEventLike(this, event)"
+                        class="like-btn flex items-center gap-1.5 text-[#8d90a0] hover:text-pink-500 transition-colors group cursor-pointer"
+                        data-event-id="{{ item.id }}"
+                        title="Like Event">
+                        <span class="like-icon material-symbols-outlined text-[22px] transition-colors {% if request.user in item.likes.all %}text-pink-500{% else %}text-[#8d90a0] group-hover:text-pink-400{% endif %}"
+                              {% if request.user in item.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
+                        <span class="like-count text-sm font-medium text-white">{{ item.likes.count }}</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Seats & RSVP -->
+                <div class="flex items-center gap-4">
+                    {% if item.total_seats %}
+                    <div class="flex flex-col text-right hidden sm:flex">
+                        <span class="text-[10px] text-[#8d90a0] uppercase tracking-wider font-bold">Total Seats</span>
+                        <span class="text-sm font-bold text-white">{{ item.total_seats }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if item.is_past %}
+                    <button type="button" disabled
+                        class="bg-slate-800/60 text-[#8d90a0] border border-[#334155]/60 px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 cursor-not-allowed select-none"
+                        title="This event has already ended">
+                        <span class="material-symbols-outlined text-[18px] text-[#64748b]">event_busy</span>
+                        Event Ended
+                    </button>
+                    {% elif request.user in item.attendees.all %}
+                    <button type="button" disabled
+                        class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-1.5 cursor-not-allowed"
+                        title="You are registered for this event">
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        Registered ✓
+                    </button>
+                    {% else %}
+                        {% if item.rsvp_mode == 'CUSTOM' %}
+                        <a href="{% url 'custom_rsvp_form' item.id %}"
+                            class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white px-5 py-2 rounded-lg font-semibold text-sm btn-glow flex items-center gap-1.5 shadow-lg shadow-purple-500/20">
+                            <span class="material-symbols-outlined text-[18px]">dynamic_form</span>
+                            Fill RSVP Form
+                        </a>
+                        {% elif item.rsvp_mode == 'DIRECT' %}
+                        <form method="POST" action="{% url 'rsvp_event' item.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-2 rounded-lg font-semibold text-sm btn-glow flex items-center gap-1.5 shadow-lg shadow-blue-500/20 cursor-pointer">
+                                RSVP Now
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </article>
+    {% else %}
+    <!-- Post/Announcement Feed Card -->
+    <article class="feed-item post-item glass-panel rounded-2xl overflow-hidden shadow-xl border border-purple-500/30 hover:border-purple-500/50 transition-all" data-timestamp="{{ item.created_at|date:'c' }}" data-created-at="{{ item.created_at|date:'c' }}" data-feed-id="post-{{ item.id }}">
+        <!-- Club Header -->
+        <div class="p-4 flex items-center justify-between border-b border-[#334155]/30 bg-purple-950/10">
+            <div class="flex items-center gap-3">
+                {% if item.club.logo %}
+                    <img src="{{ item.club.logo.url }}" alt="{{ item.club.club_name }}" class="w-10 h-10 rounded-full object-cover border border-purple-500/40 shadow-sm">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-[20px]">campaign</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <!-- Dynamic Club Name and Date Posted -->
+                    <a href="{% url 'club_profile_detail' item.club.id %}" class="font-semibold text-white text-sm hover:text-purple-400 transition-colors block">
+                        {{ item.club.club_name }}
+                    </a>
+                    <p class="text-xs text-[#8d90a0] flex items-center gap-1.5">
+                        <span>Posted {{ item.created_at|timesince }} ago</span>
+                        <span class="text-[#475569]">&bull;</span>
+                        <span>{{ item.created_at|date:"M j, Y" }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                {% if item.is_private %}
+                <span class="flex items-center gap-1 bg-amber-500/15 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-md border border-amber-500/30">
+                    <span class="material-symbols-outlined text-[13px]">lock</span> Members Only
+                </span>
+                {% endif %}
+                <div class="bg-purple-600/20 text-purple-400 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide border border-purple-500/30 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">campaign</span>
+                    Announcement
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional Post Image -->
+        {% if item.image %}
+        <div class="w-full max-h-96 bg-[#1e293b] relative border-b border-[#334155]/40 overflow-hidden flex items-center justify-center">
+            <img src="{{ item.image.url }}" alt="Announcement from {{ item.club.club_name }}" class="w-full h-full object-cover"/>
+        </div>
+        {% endif %}
+
+        <!-- Post Content & Actions -->
+        <div class="p-5 flex flex-col gap-4">
+            <p class="text-sm text-[#dfe2eb] leading-relaxed whitespace-pre-line">{{ item.content }}</p>
+
+            <!-- Interaction Bar with Like Button -->
+            <div class="flex items-center justify-between pt-3 border-t border-[#334155]/40">
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                        onclick="togglePostLike(this, event)"
+                        class="post-like-btn flex items-center gap-1.5 text-[#8d90a0] hover:text-pink-500 transition-colors group cursor-pointer"
+                        data-post-id="{{ item.id }}"
+                        title="Like Announcement">
+                        <span class="post-like-icon material-symbols-outlined text-[22px] transition-colors {% if request.user in item.likes.all %}text-pink-500{% else %}text-[#8d90a0] group-hover:text-pink-400{% endif %}"
+                              {% if request.user in item.likes.all %}style="font-variation-settings: 'FILL' 1;"{% endif %}>
+                            favorite
+                        </span>
+                        <span class="post-like-count text-sm font-medium text-white">{{ item.likes.count }}</span>
+                    </button>
+                </div>
+
+                <a href="{% url 'club_profile_detail' item.club.id %}" class="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1 transition-colors">
+                    Visit Club Page <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+    </article>
+    {% endif %}
+{% endfor %}

@@ -3,66 +3,381 @@
 {% block title %}Admin Command Center - Event Nexus{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-10">
+
+    <!-- Top Hero / Banner Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#334155]/50 pb-6">
         <div>
-            <div class="flex items-center gap-2 mb-1.5">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/30">
-                    Administrator Portal
+            <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-300 border border-red-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span>
+                    Campus Operations Console
                 </span>
+                <span class="text-xs text-[#8d90a0]">• Central Administration</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">Campus Management Center</h1>
-            <p class="text-sm text-[#8d90a0] mt-1">Oversee campus student clubs, approve official events, and manage campus users.</p>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Admin Command Center</h1>
+            <p class="text-sm text-[#8d90a0] mt-1.5 max-w-2xl leading-relaxed">
+                Oversee campus student organizations, review registration requests, inspect community activities, and manage platform stability.
+            </p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="/admin/" target="_blank" class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold text-xs btn-glow flex items-center gap-2 shadow-lg shadow-red-500/20">
+            <a href="/admin/" target="_blank"
+               class="px-4 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white rounded-xl font-semibold text-xs btn-glow flex items-center gap-2 shadow-lg shadow-red-600/25 border border-red-500/30 transition-all">
                 <span class="material-symbols-outlined text-[18px]">database</span>
                 <span>Django SuperAdmin</span>
+                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
             </a>
         </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                <span class="material-symbols-outlined text-2xl">school</span>
-            </div>
-            <div>
-                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Total Students</span>
-                <h3 class="text-2xl font-bold text-white">Active</h3>
-            </div>
+    <!-- Section 1: Metrics Row -->
+    <div id="overview" class="flex flex-col gap-4 scroll-mt-20">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-[#8d90a0] flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-blue-400">analytics</span>
+                Platform Key Metrics
+            </h2>
+            <span class="text-xs text-[#64748b]">Live synchronized counts</span>
         </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                <span class="material-symbols-outlined text-2xl">groups</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Total Students / Users -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center justify-between hover:border-blue-500/40 transition-all shadow-lg group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-blue-500/10">
+                        <span class="material-symbols-outlined text-2xl">school</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Total Students</span>
+                        <h3 class="text-2xl font-extrabold text-white tracking-tight mt-0.5">{{ total_students }}</h3>
+                    </div>
+                </div>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                    Community
+                </span>
             </div>
-            <div>
-                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Registered Clubs</span>
-                <h3 class="text-2xl font-bold text-white">Verified</h3>
-            </div>
-        </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                <span class="material-symbols-outlined text-2xl">event</span>
+            <!-- Approved Clubs -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center justify-between hover:border-purple-500/40 transition-all shadow-lg group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/25 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-purple-500/10">
+                        <span class="material-symbols-outlined text-2xl">verified</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Approved Clubs</span>
+                        <h3 class="text-2xl font-extrabold text-white tracking-tight mt-0.5">{{ total_clubs }}</h3>
+                    </div>
+                </div>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                    Verified
+                </span>
             </div>
-            <div>
-                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Published Events</span>
-                <h3 class="text-2xl font-bold text-white">Live</h3>
-            </div>
-        </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
-                <span class="material-symbols-outlined text-2xl">security</span>
+            <!-- Published Events -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex items-center justify-between hover:border-emerald-500/40 transition-all shadow-lg group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-emerald-500/10">
+                        <span class="material-symbols-outlined text-2xl">event</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Total Events</span>
+                        <h3 class="text-2xl font-extrabold text-white tracking-tight mt-0.5">{{ total_events }}</h3>
+                    </div>
+                </div>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    Active
+                </span>
             </div>
-            <div>
-                <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Security</span>
-                <h3 class="text-2xl font-bold text-white">Protected</h3>
+
+            <!-- Pending Review Queue -->
+            <div class="glass-panel p-5 rounded-2xl border {% if pending_count > 0 %}border-amber-500/50 bg-amber-500/5{% else %}border-[#334155]/50{% endif %} flex items-center justify-between hover:border-amber-500/60 transition-all shadow-lg group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-amber-500/10">
+                        <span class="material-symbols-outlined text-2xl">hourglass_top</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-[#8d90a0] font-semibold uppercase tracking-wider">Pending Approvals</span>
+                        <h3 class="text-2xl font-extrabold text-white tracking-tight mt-0.5">{{ pending_count }}</h3>
+                    </div>
+                </div>
+                {% if pending_count > 0 %}
+                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
+                    Action Req
+                </span>
+                {% else %}
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-500/10 text-slate-400 border border-slate-500/20">
+                    Clear
+                </span>
+                {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- Section 2: Approval Queue -->
+    <div id="pending-queue" class="flex flex-col gap-5 scroll-mt-20">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#334155]/40 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Club Approval Queue</h2>
+                    <p class="text-xs text-[#8d90a0]">Review newly registered campus clubs before authorizing full portal access.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-full text-xs font-semibold">
+                    {{ pending_count }} Pending Review
+                </span>
+            </div>
+        </div>
+
+        {% if pending_clubs %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {% for club in pending_clubs %}
+                <div class="glass-panel p-6 rounded-2xl border border-[#334155]/60 hover:border-amber-500/40 transition-all flex flex-col justify-between gap-6 shadow-xl relative overflow-hidden group">
+                    <!-- Top subtle ambient highlight -->
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 opacity-60"></div>
+
+                    <div class="flex flex-col gap-4">
+                        <!-- Club Card Header -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-3.5">
+                                {% if club.logo %}
+                                    <img src="{{ club.logo.url }}" alt="{{ club.club_name }}" class="w-14 h-14 rounded-2xl object-cover border border-[#334155] shadow-md">
+                                {% else %}
+                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-600/30 to-purple-600/30 border border-amber-500/30 text-amber-300 flex items-center justify-center text-xl font-extrabold shadow-md">
+                                        {{ club.club_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h3 class="text-lg font-bold text-white tracking-tight group-hover:text-amber-300 transition-colors">
+                                        {{ club.club_name }}
+                                    </h3>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 rounded-md">
+                                            {{ club.category|default:"General" }}
+                                        </span>
+                                        <span class="text-[11px] text-[#8d90a0]">
+                                            Joined {{ club.user.date_joined|date:"M d, Y" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0 uppercase tracking-wider">
+                                Unapproved
+                            </span>
+                        </div>
+
+                        <!-- Bio / Description -->
+                        <div class="bg-[#0f172a]/70 rounded-xl p-3 border border-[#334155]/40 text-xs text-gray-300 leading-relaxed min-h-[56px]">
+                            {{ club.bio|default:"No description provided yet by the club organizer."|truncatewords:28 }}
+                        </div>
+
+                        <!-- Organization Meta Info -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <div class="flex items-center gap-2 text-[#8d90a0] truncate">
+                                <span class="material-symbols-outlined text-[16px] text-[#64748b] shrink-0">mail</span>
+                                <span class="truncate" title="{{ club.contact_email|default:club.user.email }}">{{ club.contact_email|default:club.user.email }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-[#8d90a0] truncate">
+                                <span class="material-symbols-outlined text-[16px] text-[#64748b] shrink-0">badge</span>
+                                <span class="truncate">ID: #{{ club.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-4 border-t border-[#334155]/50 flex items-center gap-3">
+                        <!-- Approve Form -->
+                        <form method="POST" action="{% url 'approve_club' club.id %}" class="flex-1">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-[0.98]">
+                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                Approve Club
+                            </button>
+                        </form>
+
+                        <!-- Reject Form -->
+                        <form method="POST" action="{% url 'reject_club' club.id %}"
+                              onsubmit="return confirm('Are you sure you want to reject and remove \'{{ club.club_name|escapejs }}\'?');"
+                              class="flex-1">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="w-full py-2.5 px-4 rounded-xl bg-red-600/15 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 hover:border-red-600 text-xs font-bold transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                                <span class="material-symbols-outlined text-[18px]">cancel</span>
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Clean Empty State -->
+            <div class="glass-panel p-10 rounded-2xl border border-[#334155]/50 text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                    <span class="material-symbols-outlined text-3xl">task_alt</span>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-lg font-bold text-white">Approval Queue is All Clear!</h3>
+                    <p class="text-xs text-[#8d90a0] max-w-md mx-auto">
+                        There are currently no club registration requests awaiting administrator verification. Any newly registered student organizations will appear here immediately.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Section 3: Manage Clubs Section -->
+    <div id="manage-clubs" class="flex flex-col gap-5 scroll-mt-20">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#334155]/40 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">groups</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Manage Active Clubs</h2>
+                    <p class="text-xs text-[#8d90a0]">Overview of all verified organizations currently active on Event Nexus.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-full text-xs font-semibold">
+                {{ approved_clubs|length }} Active Organizations
+            </span>
+        </div>
+
+        {% if approved_clubs %}
+            <div class="glass-panel rounded-2xl border border-[#334155]/50 overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-[#334155]/50 bg-[#0f172a]/60 text-[#8d90a0] text-xs uppercase tracking-wider font-semibold">
+                                <th class="py-3.5 px-5">Organization</th>
+                                <th class="py-3.5 px-4">Category</th>
+                                <th class="py-3.5 px-4">Contact</th>
+                                <th class="py-3.5 px-4">Followers</th>
+                                <th class="py-3.5 px-4 text-center">Status</th>
+                                <th class="py-3.5 px-5 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#334155]/30 text-sm">
+                            {% for club in approved_clubs %}
+                            <tr class="hover:bg-[#1e293b]/40 transition-colors">
+                                <td class="py-4 px-5">
+                                    <div class="flex items-center gap-3">
+                                        {% if club.logo %}
+                                            <img src="{{ club.logo.url }}" alt="{{ club.club_name }}" class="w-9 h-9 rounded-xl object-cover border border-[#334155]">
+                                        {% else %}
+                                            <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 flex items-center justify-center text-xs font-bold">
+                                                {{ club.club_name|first|upper }}
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <span class="font-bold text-white block">{{ club.club_name }}</span>
+                                            <span class="text-xs text-[#8d90a0]">Joined {{ club.user.date_joined|date:"M Y" }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-4 text-xs">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">
+                                        {{ club.category|default:"General" }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-4 text-xs text-[#c3c6d7]">
+                                    {{ club.contact_email|default:club.user.email }}
+                                </td>
+                                <td class="py-4 px-4 text-xs text-[#8d90a0] font-semibold">
+                                    {{ club.followers.count }} followers
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                        Approved
+                                    </span>
+                                </td>
+                                <td class="py-4 px-5 text-right">
+                                    <a href="{% url 'club_profile_detail' club.id %}"
+                                       class="px-3 py-1.5 rounded-lg bg-[#1e293b] hover:bg-[#334155] text-xs text-white border border-[#334155] inline-flex items-center gap-1 transition-colors">
+                                        <span>View Page</span>
+                                        <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="glass-panel p-8 rounded-2xl border border-[#334155]/50 text-center text-[#8d90a0] text-sm">
+                No active clubs have been verified yet. Check the approval queue above to approve pending registrations.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Section 4: System Reports -->
+    <div id="system-reports" class="flex flex-col gap-5 scroll-mt-20">
+        <div class="flex items-center justify-between border-b border-[#334155]/40 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">monitoring</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">System & Security Reports</h2>
+                    <p class="text-xs text-[#8d90a0]">Health status, security configurations, and operational summaries.</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                All Systems Operational
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Authentication Status -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center">
+                        <span class="material-symbols-outlined">verified_user</span>
+                    </div>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">Secure</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Auth & Permissions</h4>
+                    <p class="text-xs text-[#8d90a0] mt-1">Role-based access decorators (@admin_required, @club_required, @student_required) actively enforcing soft-locks.</p>
+                </div>
+            </div>
+
+            <!-- Database & Storage -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center">
+                        <span class="material-symbols-outlined">storage</span>
+                    </div>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">Connected</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Data Consistency</h4>
+                    <p class="text-xs text-[#8d90a0] mt-1">SQLite3 relational database connected with Cloudinary media storage engine for event attachments.</p>
+                </div>
+            </div>
+
+            <!-- Campus Engagement Status -->
+            <div class="glass-panel p-5 rounded-2xl border border-[#334155]/50 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                        <span class="material-symbols-outlined">hub</span>
+                    </div>
+                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Active</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Campus Nexus Pipeline</h4>
+                    <p class="text-xs text-[#8d90a0] mt-1">{{ total_events }} official published events bridging {{ total_clubs }} clubs and {{ total_students }} registered students.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

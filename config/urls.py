@@ -26,6 +26,7 @@ urlpatterns = [
     # Dedicated Domains
     path("student/", include("apps.students.urls")),
     path("club/", include("apps.clubs.urls")),
+    path("clubs/", include(("apps.clubs.urls", "clubs"), namespace="clubs")),
     path("events/", include("apps.events.urls")),
     path("event/", include("apps.events.urls")),
     path("admin-portal/", include("apps.administration.urls")),

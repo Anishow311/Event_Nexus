@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 from apps.core.decorators import club_required
 from apps.events.models import Event, CustomQuestion, QuestionOption
+from apps.students.models import Notification
 
 
 @club_required
@@ -52,6 +53,21 @@ def create_event(request):
                     event.image = image
 
                 event.save()
+
+                # If event is members-only, notify all approved club members
+                if is_private:
+                    approved_memberships = club_profile.memberships.filter(
+                        status="approved"
+                    ).select_related("student")
+                    notifications = [
+                        Notification(
+                            student=membership.student,
+                            message=f"New members-only update from {club_profile.club_name}: {event.title}",
+                        )
+                        for membership in approved_memberships
+                    ]
+                    if notifications:
+                        Notification.objects.bulk_create(notifications)
 
                 # 2. If RSVP mode is CUSTOM, process and save custom questions & options
                 if rsvp_mode == "CUSTOM":

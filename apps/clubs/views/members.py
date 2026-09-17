@@ -117,7 +117,7 @@ membership_requests = pending_requests_view
 
 
 
-@login_required
+@club_required
 def request_membership(request, club_id=None):
     """
     POST endpoint that uses get_or_create on the ClubMembership model

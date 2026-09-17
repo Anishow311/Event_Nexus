@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.core.decorators import club_required
+from apps.students.models import Notification
 from ..models import ClubPost
 
 
@@ -28,6 +29,23 @@ def create_post(request):
             post.image = image
 
         post.save()
+
+        # Members-only notification trigger for approved club members
+        if is_private:
+            approved_memberships = request.user.club_profile.memberships.filter(
+                status="approved"
+            ).select_related("student")
+            post_title = (post.content[:50] + "...") if len(post.content) > 50 else post.content
+            notifications = [
+                Notification(
+                    student=membership.student,
+                    message=f"New members-only update from {request.user.club_profile.club_name}: {post_title}",
+                )
+                for membership in approved_memberships
+            ]
+            if notifications:
+                Notification.objects.bulk_create(notifications)
+
         messages.success(request, "Announcement published successfully!")
         return redirect("club_dashboard")
 
@@ -70,7 +88,7 @@ def delete_post(request, post_id):
     return redirect(request.META.get("HTTP_REFERER", "club_dashboard"))
 
 
-@login_required
+@club_required
 def toggle_post_like(request, post_id):
     """
     Toggle like/unlike on a ClubPost for the authenticated user (Student or Club).

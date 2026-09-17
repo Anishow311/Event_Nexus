@@ -1,8 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from apps.core.decorators import club_required
 from apps.events.models import Event
 from ..models import ClubPost, ClubMembership
+
+
+def pending_approval(request):
+    """
+    Landing view for clubs awaiting administrator approval.
+    """
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    club_profile = getattr(request.user, "clubprofile", None) or getattr(request.user, "club_profile", None)
+    if club_profile and getattr(club_profile, "is_approved", False):
+        return redirect("club_dashboard")
+
+    return render(request, "clubs/pending_approval.html", {
+        "club": club_profile,
+    })
 
 
 

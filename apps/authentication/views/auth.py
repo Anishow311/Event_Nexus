@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from apps.authentication.forms import RegistrationForm, LoginForm
 from apps.authentication.models import CustomUser, StudentProfile, ClubProfile
@@ -122,7 +122,38 @@ def login_view(request):
             email = form.cleaned_data["email"].strip().lower()
             password = form.cleaned_data["password"]
 
-            # 1. Authenticate via Supabase Auth
+            # 1. First, check local Django authentication (supports Django superusers, staff, and local accounts)
+            local_user = authenticate(request, email=email, password=password) or authenticate(request, username=email, password=password)
+            if not local_user:
+                candidate_user = CustomUser.objects.filter(email__iexact=email).first()
+                if candidate_user and candidate_user.check_password(password):
+                    local_user = candidate_user
+
+            if local_user:
+                login(request, local_user)
+
+                # Optional: Sync session with Supabase in the background if possible, but do not block login
+                try:
+                    supabase = get_supabase_client()
+                    response = supabase.auth.sign_in_with_password({
+                        "email": email,
+                        "password": password
+                    })
+                    if response and response.session:
+                        request.session["supabase_access_token"] = response.session.access_token
+                        request.session["supabase_refresh_token"] = response.session.refresh_token
+                except Exception:
+                    pass
+
+                if local_user.role == "STUDENT":
+                    return redirect("student_dashboard")
+                elif local_user.role == "CLUB":
+                    return redirect("club_dashboard")
+                elif local_user.role == "ADMIN" or local_user.is_superuser:
+                    return redirect("admin_dashboard")
+                return redirect("home")
+
+            # 2. If not matched locally, authenticate via Supabase Auth
             try:
                 supabase = get_supabase_client()
                 response = supabase.auth.sign_in_with_password({
@@ -134,7 +165,7 @@ def login_view(request):
                     form.add_error(None, "Invalid email or password.")
                     return render(request, "authentication/login.html", {"form": form})
 
-                # 2. Find or synchronize local Django user
+                # 3. Find or synchronize local Django user
                 user = CustomUser.objects.filter(email__iexact=email).first()
                 if not user:
                     user_metadata = response.user.user_metadata or {}
@@ -161,6 +192,10 @@ def login_view(request):
                                 "club_name": user_metadata.get("club_name", "")
                             }
                         )
+                else:
+                    if not user.check_password(password):
+                        user.set_password(password)
+                        user.save()
 
                 # Store tokens in Django session
                 if response.session:
@@ -173,7 +208,7 @@ def login_view(request):
                     return redirect("student_dashboard")
                 elif user.role == "CLUB":
                     return redirect("club_dashboard")
-                elif user.role == "ADMIN":
+                elif user.role == "ADMIN" or user.is_superuser:
                     return redirect("admin_dashboard")
                 return redirect("home")
 

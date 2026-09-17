@@ -16,10 +16,12 @@
             <p class="text-[#8d90a0]">Manage your upcoming club meetings, workshops, and events.</p>
         </div>
         <div class="flex gap-3">
-            <button class="px-4 py-2 glass-panel rounded-lg text-white hover:bg-[#334155]/50 transition-colors font-semibold text-sm border border-[#334155]/50 flex items-center gap-2">
+            <button id="todayBtn"
+                class="px-4 py-2 glass-panel rounded-lg text-white hover:bg-[#334155]/50 transition-colors font-semibold text-sm border border-[#334155]/50 flex items-center gap-2 cursor-pointer">
                 <span class="material-symbols-outlined text-[18px]">today</span> Today
             </button>
-            <a href="{% url 'explore' %}" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-sm btn-glow flex items-center gap-2 shadow-lg shadow-blue-500/20">
+            <a href="{% url 'explore' %}"
+                class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-sm btn-glow flex items-center gap-2 shadow-lg shadow-blue-500/20">
                 <span class="material-symbols-outlined text-[18px]">search</span> Explore Events
             </a>
         </div>
@@ -31,12 +33,18 @@
             <div class="glass-panel rounded-2xl p-6 border border-[#334155]/50 shadow-2xl">
                 <!-- Month Header -->
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-white tracking-wide">Campus Event Calendar</h2>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-bold text-white tracking-wide">Campus Event Calendar</h2>
+                        <span id="calendarMonthYear"
+                            class="text-xs md:text-sm font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-full"></span>
+                    </div>
                     <div class="flex gap-2 text-[#8d90a0]">
-                        <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#334155]/50 hover:text-white transition-colors border border-transparent hover:border-[#334155]/50">
+                        <button id="prevMonthBtn" aria-label="Previous Month"
+                            class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#334155]/50 hover:text-white transition-colors border border-transparent hover:border-[#334155]/50 cursor-pointer">
                             <span class="material-symbols-outlined text-[20px]">chevron_left</span>
                         </button>
-                        <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#334155]/50 hover:text-white transition-colors border border-transparent hover:border-[#334155]/50">
+                        <button id="nextMonthBtn" aria-label="Next Month"
+                            class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#334155]/50 hover:text-white transition-colors border border-transparent hover:border-[#334155]/50 cursor-pointer">
                             <span class="material-symbols-outlined text-[20px]">chevron_right</span>
                         </button>
                     </div>
@@ -53,87 +61,36 @@
                     <div class="text-xs font-bold text-[#8d90a0] uppercase tracking-wider py-2">Sat</div>
                 </div>
 
-                <!-- Calendar Grid (Visual Representation) -->
-                <div class="grid grid-cols-7 gap-2 md:gap-3">
-                    <!-- Empty offset slots for start of month -->
-                    <div class="aspect-square rounded-xl bg-transparent"></div>
-                    <div class="aspect-square rounded-xl bg-transparent"></div>
-                    <div class="aspect-square rounded-xl bg-transparent"></div>
-                    <div class="aspect-square rounded-xl bg-transparent"></div>
-
-                    <!-- Days 1-3 -->
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">1</span>
-                    </div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">2</span>
-                    </div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">3</span>
-                    </div>
-
-                    <!-- Active/Current Day -->
-                    <div class="aspect-square rounded-xl bg-blue-600/20 border-2 border-blue-500 flex flex-col items-center justify-center relative group hover:bg-blue-600/30 transition-all cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                        <span class="text-sm font-bold text-blue-400">4</span>
-                    </div>
-
-                    <!-- Days 5-6 -->
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">5</span>
-                    </div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">6</span>
-                    </div>
-
-                    <!-- Day with an Event Dot -->
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-purple-500/50 hover:bg-purple-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-white group-hover:text-purple-400">7</span>
-                        <div class="absolute bottom-2 flex gap-1">
-                            <div class="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]"></div>
-                        </div>
-                    </div>
-
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer"><span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">8</span></div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer"><span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">9</span></div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer"><span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">10</span></div>
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer"><span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">11</span></div>
-
-                    <!-- Day with Multiple Events -->
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-emerald-500/50 hover:bg-emerald-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-white group-hover:text-emerald-400">12</span>
-                        <div class="absolute bottom-2 flex gap-1">
-                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                            <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                        </div>
-                    </div>
-
-                    <!-- Remaining Days (13-31) -->
-                    {% for i in "1234567890123456789" %}
-                    <div class="aspect-square rounded-xl bg-[#0f172a]/50 border border-[#334155]/30 flex flex-col items-center justify-center relative group hover:border-blue-500/50 hover:bg-blue-900/20 transition-all cursor-pointer">
-                        <span class="text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400">{{ forloop.counter|add:12 }}</span>
-                    </div>
-                    {% endfor %}
+                <!-- Calendar Grid (Dynamically Rendered) -->
+                <div id="calendarGrid" class="grid grid-cols-7 gap-2 md:gap-3">
+                    <!-- Dynamic day cells generated by renderCalendar() -->
                 </div>
             </div>
         </div>
 
-        <!-- Right: Upcoming Events List -->
+        <!-- Right: Upcoming Events List / Day Events -->
         <div class="lg:col-span-4 flex flex-col gap-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-purple-400 text-xl">event_upcoming</span> Upcoming
+                <span class="material-symbols-outlined text-purple-400 text-xl">event_upcoming</span>
+                <span id="sidebarTitle">Upcoming</span>
             </h3>
 
-            <div class="flex flex-col gap-3">
+            <div id="sidebarEventsContainer" class="flex flex-col gap-3">
                 <!-- Dynamic Event Loop -->
                 {% for event in events %}
-                <div class="glass-panel rounded-xl p-4 border border-[#334155]/50 hover:border-blue-500/50 transition-colors group cursor-pointer relative overflow-hidden bg-[#0a0e14]/50">
+                <div
+                    class="glass-panel rounded-xl p-4 border border-[#334155]/50 hover:border-blue-500/50 transition-colors group cursor-pointer relative overflow-hidden bg-[#0a0e14]/50">
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
                     <div class="pl-3">
                         <div class="flex items-center gap-2 mb-1.5">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">{{ event.date|date:"M j" }}</span>
+                            <span
+                                class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">{{
+                                event.date|date:"M j" }}</span>
                             <span class="text-xs font-semibold text-[#8d90a0]">{{ event.time|time:"g:i A" }}</span>
                         </div>
-                        <h4 class="text-white font-bold text-sm mb-1.5 group-hover:text-blue-400 transition-colors leading-tight">{{ event.title }}</h4>
+                        <h4
+                            class="text-white font-bold text-sm mb-1.5 group-hover:text-blue-400 transition-colors leading-tight">
+                            {{ event.title }}</h4>
                         <div class="flex items-center gap-1.5 text-xs text-[#8d90a0]">
                             <span class="material-symbols-outlined text-[14px]">location_on</span>
                             <span class="truncate">{{ event.venue }}</span>
@@ -141,7 +98,8 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
+                <div
+                    class="glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
                     <span class="material-symbols-outlined text-4xl text-[#8d90a0]">calendar_month</span>
                     <h3 class="text-white font-bold text-sm">No Upcoming Events</h3>
                     <p class="text-xs text-[#8d90a0]">Your schedule is clear!</p>
@@ -151,4 +109,261 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Step 2: Parse events_json into a JavaScript object
+    const eventsData = JSON.parse('{{ events_json|default:"{}"|escapejs }}');
+
+    // Variables to track currentMonth and currentYear
+    const today = new Date();
+    let currentMonth = today.getMonth(); // 0 = Jan, 11 = Dec
+    let currentYear = today.getFullYear();
+    let selectedDateKey = null;
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    /**
+     * Helper to safely escape HTML attributes and text
+     */
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * Checks if a year is a leap year (divisible by 4 and not 100, or divisible by 400).
+     */
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+
+    /**
+     * Returns total days in the given month and year, accounting for leap years.
+     */
+    function getDaysInMonth(month, year) {
+        const daysInMonths = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        return daysInMonths[month];
+    }
+
+    /**
+     * Step 4: Updates the right-hand sidebar container when a date is selected.
+     * Checks clicked date against events_json (eventsData).
+     * If events exist, maps through them and injects the HTML for event cards.
+     * If no events exist, clears the container and injects empty state message:
+     * <p class="text-gray-400 mt-4">No events scheduled for this day.</p>
+     */
+    function updateSidebarForDate(dateKey, day, month, year) {
+        const sidebarContainer = document.getElementById('sidebarEventsContainer');
+        const sidebarTitle = document.getElementById('sidebarTitle');
+        if (!sidebarContainer) return;
+
+        if (sidebarTitle) {
+            sidebarTitle.textContent = `${monthNames[month]} ${day}, ${year}`;
+        }
+
+        const dayEvents = eventsData[dateKey];
+
+        if (dayEvents && dayEvents.length > 0) {
+            sidebarContainer.innerHTML = dayEvents.map(event => `
+                <div class="glass-panel rounded-xl p-4 border border-[#334155]/50 hover:border-blue-500/50 transition-colors group cursor-pointer relative overflow-hidden bg-[#0a0e14]/50">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
+                    <div class="pl-3">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">${event.formatted_date || `${monthNames[month].slice(0, 3)} ${day}`}</span>
+                            <span class="text-xs font-semibold text-[#8d90a0]">${event.time || ''}</span>
+                        </div>
+                        <h4 class="text-white font-bold text-sm mb-1.5 group-hover:text-blue-400 transition-colors leading-tight">${escapeHtml(event.title)}</h4>
+                        <div class="flex items-center gap-1.5 text-xs text-[#8d90a0]">
+                            <span class="material-symbols-outlined text-[14px]">location_on</span>
+                            <span class="truncate">${escapeHtml(event.venue)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            sidebarContainer.innerHTML = '<p class="text-gray-400 mt-4">No events scheduled for this day.</p>';
+        }
+    }
+
+    /**
+     * Clears the existing grid and generates the day cells dynamically.
+     * Accounts for leap years and the starting day of the week.
+     * Appends visual dot element if the date exists in eventsData.
+     * Attaches click event to calendar days for sidebar interaction and cell highlighting.
+     */
+    function renderCalendar(month, year) {
+        const grid = document.getElementById('calendarGrid');
+        const monthYearDisplay = document.getElementById('calendarMonthYear');
+        if (!grid) return;
+
+        if (monthYearDisplay) {
+            monthYearDisplay.textContent = `${monthNames[month]} ${year}`;
+        }
+
+        // Clear existing grid cells
+        grid.innerHTML = '';
+
+        // Determine starting day of week for the 1st of the month (0 = Sun, 1 = Mon, ..., 6 = Sat)
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const totalDays = getDaysInMonth(month, year);
+
+        // Render empty offset slots for leading days before the 1st
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'aspect-square rounded-xl bg-transparent';
+            grid.appendChild(emptyCell);
+        }
+
+        // Render day cells dynamically
+        for (let day = 1; day <= totalDays; day++) {
+            const monthFormatted = String(month + 1).padStart(2, '0');
+            const dayFormatted = String(day).padStart(2, '0');
+            const dateKey = `${year}-${monthFormatted}-${dayFormatted}`;
+
+            const isToday = (
+                day === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear()
+            );
+            const isSelected = (selectedDateKey === dateKey);
+
+            const dayEvents = eventsData[dateKey] || [];
+            const hasEvents = dayEvents.length > 0;
+
+            const cell = document.createElement('div');
+            cell.dataset.date = dateKey;
+            cell.className = 'calendar-day-cell aspect-square rounded-xl flex flex-col items-center justify-center relative group transition-all cursor-pointer select-none';
+
+            // Base styling depending on state
+            if (isSelected) {
+                cell.classList.add('bg-blue-600/30', 'border-2', 'border-blue-400', 'ring-2', 'ring-blue-500/50', 'shadow-[0_0_15px_rgba(59,130,246,0.4)]');
+            } else if (isToday) {
+                cell.classList.add('bg-blue-600/20', 'border-2', 'border-blue-500', 'hover:bg-blue-600/30', 'shadow-[0_0_15px_rgba(59,130,246,0.3)]');
+            } else if (hasEvents) {
+                cell.classList.add('bg-[#0f172a]/50', 'border', 'border-[#334155]/30', 'hover:border-purple-500/50', 'hover:bg-purple-900/20');
+            } else {
+                cell.classList.add('bg-[#0f172a]/50', 'border', 'border-[#334155]/30', 'hover:border-blue-500/50', 'hover:bg-blue-900/20');
+            }
+
+            // Day number
+            const numberSpan = document.createElement('span');
+            if (isSelected) {
+                numberSpan.className = 'text-sm font-bold text-white';
+            } else if (isToday) {
+                numberSpan.className = 'text-sm font-bold text-blue-400';
+            } else if (hasEvents) {
+                numberSpan.className = 'text-sm font-medium text-white group-hover:text-purple-400';
+            } else {
+                numberSpan.className = 'text-sm font-medium text-[#c3c6d7] group-hover:text-blue-400';
+            }
+            numberSpan.textContent = day;
+            cell.appendChild(numberSpan);
+
+            // If date exists in parsed events_json, append small visual dot element
+            if (hasEvents) {
+                const dotContainer = document.createElement('div');
+                dotContainer.className = 'absolute bottom-2 flex gap-1 items-center justify-center pointer-events-none';
+
+                // Append dots for events (up to 3 for clean visual)
+                dayEvents.slice(0, 3).forEach((evt, idx) => {
+                    const dot = document.createElement('div');
+                    if (idx === 0) {
+                        dot.className = 'w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]';
+                    } else if (idx === 1) {
+                        dot.className = 'w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]';
+                    } else {
+                        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]';
+                    }
+                    dotContainer.appendChild(dot);
+                });
+
+                cell.appendChild(dotContainer);
+
+                // Add descriptive tooltip on hover
+                const summary = dayEvents.map(e => `${e.title}${e.time ? ` (${e.time})` : ''}${e.venue ? ` @ ${e.venue}` : ''}`).join('\n');
+                cell.title = summary;
+            }
+
+            // Step 4: Click event to highlight cell and update sidebar
+            cell.addEventListener('click', () => {
+                // Remove active highlight from all other day cells
+                grid.querySelectorAll('.calendar-day-cell').forEach(c => {
+                    c.classList.remove('bg-blue-600/30', 'ring-2', 'ring-blue-500/50', 'border-blue-400', 'shadow-[0_0_15px_rgba(59,130,246,0.4)]');
+                    const isCellToday = c.dataset.date === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                    if (isCellToday) {
+                        c.classList.add('border-2', 'border-blue-500', 'bg-blue-600/20');
+                    } else {
+                        c.classList.add('border', 'border-[#334155]/30');
+                    }
+                });
+
+                // Highlight clicked cell with active border and background
+                cell.classList.remove('border-[#334155]/30');
+                cell.classList.add('bg-blue-600/30', 'border-2', 'border-blue-400', 'ring-2', 'ring-blue-500/50', 'shadow-[0_0_15px_rgba(59,130,246,0.4)]');
+                selectedDateKey = dateKey;
+
+                // Update sidebar with events or empty state message
+                updateSidebarForDate(dateKey, day, month, year);
+            });
+
+            grid.appendChild(cell);
+        }
+    }
+
+    // Step 3: Navigation Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        renderCalendar(currentMonth, currentYear);
+
+        const prevBtn = document.getElementById('prevMonthBtn');
+        const nextBtn = document.getElementById('nextMonthBtn');
+        const todayBtn = document.getElementById('todayBtn');
+
+        // Click listener to < arrow to decrement currentMonth and trigger renderCalendar()
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+        }
+
+        // Click listener to > arrow to increment currentMonth and trigger renderCalendar()
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+        }
+
+        // Click listener to 'Today' button to reset currentMonth and currentYear to present date and re-render
+        if (todayBtn) {
+            todayBtn.addEventListener('click', () => {
+                const now = new Date();
+                currentMonth = now.getMonth();
+                currentYear = now.getFullYear();
+                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                selectedDateKey = todayStr;
+                renderCalendar(currentMonth, currentYear);
+                updateSidebarForDate(todayStr, now.getDate(), currentMonth, currentYear);
+            });
+        }
+    });
+</script>
 {% endblock %}

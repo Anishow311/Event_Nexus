@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from apps.events.models import Event, Registration, CustomQuestion, QuestionOption, StudentAnswer
+from apps.students.models import Notification
 
 
 @login_required
@@ -47,6 +48,10 @@ def rsvp_event(request, event_id):
 
     # If user is a student, proceed with student RSVP registration
     if user.role == 'STUDENT' or hasattr(user, 'student_profile'):
+        if getattr(event, 'club', None) and not event.club.is_approved:
+            messages.error(request, "This event belongs to a club that is pending administrative approval.")
+            return redirect(request.META.get('HTTP_REFERER', 'student_dashboard'))
+
         if event.is_past:
             messages.warning(request, f"'{event.title}' has already ended. RSVP is closed.")
             return redirect(request.META.get('HTTP_REFERER', 'student_dashboard'))
@@ -77,6 +82,10 @@ def rsvp_event(request, event_id):
         )
 
         if created:
+            Notification.objects.create(
+                student=student_profile,
+                message=f"You have successfully registered for {event.title}"
+            )
             messages.success(request, f"Successfully registered for '{event.title}'!")
         else:
             messages.info(request, f"You are already registered for '{event.title}'.")
@@ -108,6 +117,10 @@ def custom_rsvp_form(request, event_id):
         return redirect('student_dashboard')
 
     # Check if RSVP is disabled
+    if getattr(event, 'club', None) and not event.club.is_approved:
+        messages.error(request, "This event belongs to a club that is pending administrative approval.")
+        return redirect('student_dashboard')
+
     if event.rsvp_mode == 'DISABLED':
         messages.warning(request, f"RSVP is currently disabled for '{event.title}'.")
         return redirect('student_dashboard')
@@ -199,6 +212,12 @@ def custom_rsvp_form(request, event_id):
                                 processed_q_ids.add(raw_id)
                     except ValueError:
                         pass
+
+            if created:
+                Notification.objects.create(
+                    student=student_profile,
+                    message=f"You have successfully registered for {event.title}"
+                )
 
         messages.success(request, f"Successfully registered for '{event.title}'!")
         return redirect('student_dashboard')

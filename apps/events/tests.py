@@ -95,6 +95,13 @@ class CustomRsvpTests(TestCase):
                 event=self.direct_event
             ).exists()
         )
+        from apps.students.models import Notification
+        self.assertTrue(
+            Notification.objects.filter(
+                student=self.student_profile,
+                message=f"You have successfully registered for {self.direct_event.title}"
+            ).exists()
+        )
 
     def test_custom_rsvp_post_redirects_to_custom_rsvp_form(self):
         """When event has rsvp_mode='CUSTOM', main RSVP view redirects to custom_rsvp_form without registering."""
@@ -161,6 +168,14 @@ class CustomRsvpTests(TestCase):
 
         ans_para = answers.filter(question=self.q_para).first()
         self.assertEqual(ans_para.answer_text, "Vegetarian")
+
+        from apps.students.models import Notification
+        self.assertTrue(
+            Notification.objects.filter(
+                student=self.student_profile,
+                message=f"You have successfully registered for {self.custom_event.title}"
+            ).exists()
+        )
 
     def test_custom_rsvp_form_missing_required_question(self):
         """Submitting custom RSVP form with missing required question displays error and does not register."""

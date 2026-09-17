@@ -12,27 +12,44 @@
     <div class="flex items-center justify-between border-b border-[#334155]/50 pb-4">
         <div>
             <h1 class="text-3xl font-bold text-white mb-1">Notifications</h1>
-            <p class="text-[#8d90a0]">Updates on your event RSVPs, reminders, and club announcements.</p>
+            <p class="text-[#8d90a0]">Updates on your event RSVPs, membership approval, and club announcements.</p>
         </div>
     </div>
 
     <!-- Notifications List -->
     <div class="flex flex-col gap-3">
-        <!-- Sample Notification Item -->
-        <div class="glass-panel rounded-xl p-4 border border-[#334155]/50 flex items-start gap-4 hover:border-blue-500/40 transition-colors">
-            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-[20px]">celebration</span>
+        {% for notification in notifications %}
+        <div
+            class="glass-panel rounded-xl p-4 border {% if not notification.is_read %}border-blue-500/60 bg-blue-950/20{% else %}border-[#334155]/50 bg-[#0a0e14]/40{% endif %} flex items-start gap-4 hover:border-blue-500/40 transition-colors">
+            <div
+                class="w-10 h-10 rounded-xl {% if not notification.is_read %}bg-blue-500/20 text-blue-400{% else %}bg-[#334155]/30 text-[#8d90a0]{% endif %} flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[20px]">notifications</span>
             </div>
             <div class="flex-1">
                 <div class="flex items-center justify-between mb-1">
-                    <h4 class="text-sm font-bold text-white">Welcome to Event Nexus!</h4>
-                    <span class="text-xs text-[#8d90a0]">Just now</span>
+                    <div class="flex items-center gap-2">
+                        <h4 class="text-sm font-bold text-white">{{ notification.message }}</h4>
+                        {% if not notification.is_read %}
+                        <span
+                            class="px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40">New</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs text-[#8d90a0]">{{ notification.created_at|timesince }} ago</span>
                 </div>
-                <p class="text-xs text-[#c3c6d7] leading-relaxed">
-                    Explore student clubs, RSVP for upcoming workshops, and keep track of your schedule all in one place.
-                </p>
             </div>
         </div>
+        {% empty %}
+        <div
+            class="glass-panel p-12 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
+            <div
+                class="w-14 h-14 rounded-full bg-[#1e293b] flex items-center justify-center text-[#8d90a0] mb-2 border border-[#334155]">
+                <span class="material-symbols-outlined text-3xl">notifications_off</span>
+            </div>
+            <h3 class="text-white font-bold text-base">No Notifications</h3>
+            <p class="text-xs text-[#8d90a0]">You have no notifications yet. When you receive updates or reminders, they
+                will appear here.</p>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

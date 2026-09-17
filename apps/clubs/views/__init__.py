@@ -1,4 +1,4 @@
-from .dashboard import club_dashboard
+from .dashboard import club_dashboard, pending_approval
 from .profile import club_profile, update_club_profile, toggle_follow_club
 from .posts import create_post, edit_post, edit_post_view, delete_post, toggle_post_like
 from .members import (
@@ -11,6 +11,7 @@ from .members import (
 
 __all__ = [
     "club_dashboard",
+    "pending_approval",
     "club_profile",
     "update_club_profile",
     "toggle_follow_club",

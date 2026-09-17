@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("", views.club_dashboard, name="club_dashboard"),
+    path("pending-approval/", views.pending_approval, name="pending_approval"),
     path("profile/", views.club_profile, name="club_profile"),
     path("profile/update/", views.update_club_profile, name="update_club_profile"),
     path("profile/<int:club_id>/", views.club_profile, name="club_profile_detail"),

@@ -69,14 +69,25 @@
     <!-- Left Navigation Sidebar (Desktop) -->
     <aside class="hidden md:flex flex-col w-64 fixed left-0 top-0 h-screen py-6 px-4 gap-6 glass-panel border-r border-[#334155]/50 z-40">
         <!-- Branding -->
-        <a href="{% if user.role == 'CLUB' %}{% url 'club_dashboard' %}{% elif user.role == 'ADMIN' %}{% url 'admin_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="flex items-center gap-3 px-2 mb-4 group cursor-pointer">
-            <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md group-hover:scale-105 transition-transform">
-                <span class="material-symbols-outlined text-[20px]">school</span>
+        {% if user.role == 'CLUB' and not request.user.clubprofile.is_approved %}
+            <div class="flex items-center gap-3 px-2 mb-4">
+                <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+                    <span class="material-symbols-outlined text-[20px]">school</span>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                    Event Nexus
+                </span>
             </div>
-            <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                Event Nexus
-            </span>
-        </a>
+        {% else %}
+            <a href="{% if user.role == 'CLUB' %}{% url 'club_dashboard' %}{% elif user.role == 'ADMIN' %}{% url 'admin_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="flex items-center gap-3 px-2 mb-4 group cursor-pointer">
+                <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">school</span>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                    Event Nexus
+                </span>
+            </a>
+        {% endif %}
 
         <!-- Main Navigation (Role-Based) -->
         <nav class="flex flex-col gap-2">
@@ -103,6 +114,20 @@
                     Calendar
                 </a>
 
+                <!-- Notifications -->
+                <a href="{% url 'notifications' %}"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-lg {% block nav_notifications %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined" {% block nav_notifications_icon %}{% endblock %}>notifications</span>
+                        <span>Notifications</span>
+                    </div>
+                    {% if unread_notifications > 0 %}
+                    <span class="px-2 py-0.5 text-xs font-bold bg-blue-600 text-white rounded-full shadow-sm shadow-blue-500/50">
+                        {{ unread_notifications }}
+                    </span>
+                    {% endif %}
+                </a>
+
                 <!-- Profile -->
                 <a href="{% url 'student_profile' %}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_profile %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
@@ -112,33 +137,47 @@
 
             {% elif user.role == 'CLUB' %}
                 <!-- Club Navigation -->
-                <!-- Dashboard -->
-                <a href="{% url 'club_dashboard' %}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_dashboard %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Dashboard
-                </a>
+                {% if request.user.clubprofile.is_approved %}
+                    <!-- Dashboard -->
+                    <a href="{% url 'club_dashboard' %}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_dashboard %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
 
-                <!-- Memberships -->
-                <a href="{% url 'memberships_list' %}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_memberships %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
-                    <span class="material-symbols-outlined">group_add</span>
-                    Memberships
-                </a>
+                    <!-- Memberships -->
+                    <a href="{% url 'memberships_list' %}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_club_memberships %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                        <span class="material-symbols-outlined">group_add</span>
+                        Memberships
+                    </a>
 
-                <!-- Public Profile -->
-                <a href="{% url 'club_profile' %}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors">
-                    <span class="material-symbols-outlined">domain</span>
-                    Public Profile
-                </a>
+                    <!-- Public Profile -->
+                    <a href="{% url 'club_profile' %}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">domain</span>
+                        Public Profile
+                    </a>
+                {% endif %}
             {% elif user.role == 'ADMIN' %}
                 <!-- Admin Navigation -->
+                {% block admin_nav %}
                 <a href="{% url 'admin_dashboard' %}"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-blue-600/30 transition-colors">
-                    <span class="material-symbols-outlined">admin_panel_settings</span>
-                    Admin Panel
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_overview %}text-white bg-blue-600/30 font-medium{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Overview
                 </a>
+                <a href="{% url 'admin_dashboard' %}#manage-clubs"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_clubs %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">groups</span>
+                    Manage Clubs
+                </a>
+                <a href="{% url 'admin_dashboard' %}#system-reports"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_reports %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    System Reports
+                </a>
+                {% endblock %}
             {% endif %}
         </nav>
 
@@ -163,12 +202,12 @@
                             <span class="text-xs text-[#8d90a0] truncate">{{ user.email }}</span>
                         </div>
                     {% else %}
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-600 to-slate-700 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg">
-                            {{ user.username|first|default:"A" }}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-600 to-red-700 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg">
+                            {{ user.email|default:"Admin"|first|upper }}
                         </div>
                         <div class="flex flex-col overflow-hidden">
-                            <span class="text-sm font-semibold text-white truncate">{{ user.username|default:"Admin" }}</span>
-                            <span class="text-xs text-[#8d90a0] truncate">{{ user.email }}</span>
+                            <span class="text-sm font-semibold text-white truncate">{{ user.email|default:"Administrator" }}</span>
+                            <span class="text-xs text-[#8d90a0] truncate">Campus Admin</span>
                         </div>
                     {% endif %}
                 </div>
@@ -229,26 +268,51 @@
                 <span class="material-symbols-outlined" {% block mob_nav_calendar_icon %}{% endblock %}>calendar_month</span>
                 <span class="text-[10px] font-medium">Schedule</span>
             </a>
-            <a href="{% url 'notifications' %}" class="flex flex-col items-center gap-1 {% block mob_nav_notifications %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
+            <a href="{% url 'notifications' %}" class="flex flex-col items-center gap-1 relative {% block mob_nav_notifications %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
                 <span class="material-symbols-outlined" {% block mob_nav_notifications_icon %}{% endblock %}>notifications</span>
                 <span class="text-[10px] font-medium">Alerts</span>
+                {% if unread_notifications > 0 %}
+                <span class="absolute -top-1 right-2 px-1.5 py-0.2 text-[9px] font-bold bg-blue-600 text-white rounded-full">
+                    {{ unread_notifications }}
+                </span>
+                {% endif %}
             </a>
             <a href="{% url 'student_profile' %}" class="flex flex-col items-center gap-1 {% block mob_nav_profile %}text-[#8d90a0] hover:text-[#dfe2eb]{% endblock %}">
                 <span class="material-symbols-outlined" {% block mob_nav_profile_icon %}{% endblock %}>person</span>
                 <span class="text-[10px] font-medium">Profile</span>
             </a>
         {% elif user.role == 'CLUB' %}
-            <a href="{% url 'club_dashboard' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+            {% if request.user.clubprofile.is_approved %}
+                <a href="{% url 'club_dashboard' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span class="text-[10px] font-medium">Dashboard</span>
+                </a>
+                <a href="{% url 'create_event' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="text-[10px] font-medium">New Event</span>
+                </a>
+                <a href="{% url 'club_profile' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                    <span class="material-symbols-outlined">domain</span>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </a>
+            {% else %}
+                <a href="{% url 'logout' %}" class="flex flex-col items-center gap-1 text-red-400 hover:text-red-300">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="text-[10px] font-medium">Sign Out</span>
+                </a>
+            {% endif %}
+        {% elif user.role == 'ADMIN' %}
+            <a href="{% url 'admin_dashboard' %}" class="flex flex-col items-center gap-1 text-white">
                 <span class="material-symbols-outlined">dashboard</span>
-                <span class="text-[10px] font-medium">Dashboard</span>
+                <span class="text-[10px] font-medium">Overview</span>
             </a>
-            <a href="{% url 'create_event' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
-                <span class="material-symbols-outlined">add_circle</span>
-                <span class="text-[10px] font-medium">New Event</span>
+            <a href="{% url 'admin_dashboard' %}#manage-clubs" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">groups</span>
+                <span class="text-[10px] font-medium">Clubs</span>
             </a>
-            <a href="{% url 'club_profile' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
-                <span class="material-symbols-outlined">domain</span>
-                <span class="text-[10px] font-medium">Profile</span>
+            <a href="{% url 'admin_dashboard' %}#system-reports" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">monitoring</span>
+                <span class="text-[10px] font-medium">Reports</span>
             </a>
         {% endif %}
     </nav>

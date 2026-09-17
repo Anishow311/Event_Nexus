@@ -3,13 +3,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from apps.core.decorators import club_required
 from apps.authentication.models import ClubProfile
 from apps.events.models import Event
 from ..models import ClubPost, ClubMembership
 
 
 
-@login_required
+@club_required
 def club_profile(request, club_id=None):
     """
     Renders the club profile page.
@@ -75,7 +76,7 @@ def club_profile(request, club_id=None):
 
 
 
-@login_required
+@club_required
 def toggle_follow_club(request, club_id=None):
     """
     Toggle follow/unfollow for the authenticated user on a ClubProfile.
@@ -117,7 +118,7 @@ def toggle_follow_club(request, club_id=None):
 
 
 
-@login_required
+@club_required
 def update_club_profile(request):
     """
     Handles POST requests from the Edit Profile modal.

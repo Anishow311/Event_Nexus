@@ -3,9 +3,6 @@ from apps.core.decorators import student_required
 from apps.events.models import Registration
 
 
-@student_required
-def notifications(request):
-    return render(request, "students/notifications.html")
 
 
 @student_required

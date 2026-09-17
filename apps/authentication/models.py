@@ -45,7 +45,9 @@ class CustomUser(AbstractUser):
         default='STUDENT'
     )
 
-   
+    @property
+    def clubprofile(self):
+        return getattr(self, 'club_profile', None)
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(
@@ -87,6 +89,7 @@ class ClubProfile(models.Model):
         related_name="followed_clubs",
         blank=True
     )
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.club_name
