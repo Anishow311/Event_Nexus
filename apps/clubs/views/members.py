@@ -17,37 +17,42 @@ def memberships_list_view(request):
     calculates active and pending counts, supports search filtering via ?q=, and renders clubs/memberships.html.
     """
     club = request.user.club_profile
-    approved_memberships = (
+    active_members = (
         ClubMembership.objects.filter(club=club, status="approved")
         .select_related("student", "student__user")
         .order_by("-created_at")
     )
 
-    active_count = approved_memberships.count()
-    pending_count = ClubMembership.objects.filter(club=club, status="pending").count()
-
-    search_query = request.GET.get("q", "").strip()
-    if search_query:
-        memberships = approved_memberships.filter(
-            Q(student__first_name__icontains=search_query)
-            | Q(student__last_name__icontains=search_query)
-            | Q(student__user__email__icontains=search_query)
+    query = request.GET.get('q')
+    if query:
+        active_members = active_members.filter(
+            Q(student__first_name__icontains=query)
+            | Q(student__last_name__icontains=query)
+            | Q(student__user__email__icontains=query)
         )
-    else:
-        memberships = approved_memberships
+
+    active_count = ClubMembership.objects.filter(club=club, status="approved").count()
+    pending_count = ClubMembership.objects.filter(club=club, status="pending").count()
 
     return render(
         request,
         "clubs/memberships.html",
         {
             "club": club,
-            "memberships": memberships,
+            "memberships": active_members,
+            "active_members": active_members,
             "active_count": active_count,
             "approved_count": active_count,
             "pending_count": pending_count,
-            "search_query": search_query,
+            "search_query": query or "",
+            "query": query or "",
         },
     )
+
+
+# Aliases for roster view
+club_roster = memberships_list_view
+manage_memberships = memberships_list_view
 
 
 

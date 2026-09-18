@@ -32,15 +32,6 @@
         </form>
     </div>
 
-    <!-- Category Pills -->
-    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-        <a href="{% url 'explore' %}" class="px-4 py-2 {% if not query %}bg-blue-600/20 text-blue-400 font-semibold border-blue-500/30{% else %}bg-[#1e293b]/60 text-[#8d90a0] hover:text-white border-[#334155]{% endif %} rounded-full text-xs border transition-colors whitespace-nowrap">All Categories</a>
-        <a href="{% url 'explore' %}?q=Technology" class="px-4 py-2 {% if query == 'Technology' %}bg-blue-600/20 text-blue-400 font-semibold border-blue-500/30{% else %}bg-[#1e293b]/60 text-[#8d90a0] hover:text-white border-[#334155]{% endif %} font-medium rounded-full text-xs border transition-colors whitespace-nowrap">Technology & AI</a>
-        <a href="{% url 'explore' %}?q=Music" class="px-4 py-2 {% if query == 'Music' %}bg-blue-600/20 text-blue-400 font-semibold border-blue-500/30{% else %}bg-[#1e293b]/60 text-[#8d90a0] hover:text-white border-[#334155]{% endif %} font-medium rounded-full text-xs border transition-colors whitespace-nowrap">Music & Arts</a>
-        <a href="{% url 'explore' %}?q=Sports" class="px-4 py-2 {% if query == 'Sports' %}bg-blue-600/20 text-blue-400 font-semibold border-blue-500/30{% else %}bg-[#1e293b]/60 text-[#8d90a0] hover:text-white border-[#334155]{% endif %} font-medium rounded-full text-xs border transition-colors whitespace-nowrap">Sports & Fitness</a>
-        <a href="{% url 'explore' %}?q=Debate" class="px-4 py-2 {% if query == 'Debate' %}bg-blue-600/20 text-blue-400 font-semibold border-blue-500/30{% else %}bg-[#1e293b]/60 text-[#8d90a0] hover:text-white border-[#334155]{% endif %} font-medium rounded-full text-xs border transition-colors whitespace-nowrap">Debate & Leadership</a>
-    </div>
-
     {% if not query %}
     <!-- Featured Section (Default state when no search is active) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

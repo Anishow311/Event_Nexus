@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Students - Event Nexus Admin{% endblock %}
+
+{% block nav_admin_overview %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %}
+{% block nav_admin_students %}text-white bg-blue-600/30 font-medium{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#334155]/50 pb-6">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1e293b] text-[#94a3b8] hover:text-white border border-[#334155] transition-colors">
+                    <span class="material-symbols-outlined text-[14px]">arrow_back</span>
+                    Command Center
+                </a>
+                <span class="text-xs text-[#8d90a0]">• User Directory</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Manage Students</h1>
+            <p class="text-sm text-[#8d90a0] mt-1.5 max-w-2xl leading-relaxed">
+                Review registered student profiles across campus, inspect academic details, and manage student accounts.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <span class="px-3.5 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold flex items-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">school</span>
+                <span>{{ total_students }} Registered Students</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        <div class="flex flex-col gap-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl border text-sm flex items-center gap-3 
+                    {% if message.tags == 'success' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-300
+                    {% elif message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-300
+                    {% else %}bg-blue-500/10 border-blue-500/30 text-blue-300{% endif %}">
+                    <span class="material-symbols-outlined text-lg">
+                        {% if message.tags == 'success' %}check_circle
+                        {% elif message.tags == 'error' %}error
+                        {% else %}info{% endif %}
+                    </span>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Students Data Table Section -->
+    <div class="flex flex-col gap-5">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">groups</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Registered Students</h2>
+                    <p class="text-xs text-[#8d90a0]">Directory of all verified student profiles across the university.</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-full text-xs font-semibold">
+                {{ students|length }} Students
+            </span>
+        </div>
+
+        {% if students %}
+            <div class="glass-panel rounded-2xl border border-[#334155]/50 overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-[#334155]/50 bg-[#0f172a]/60 text-[#8d90a0] text-xs uppercase tracking-wider font-semibold">
+                                <th class="py-3.5 px-5">Name</th>
+                                <th class="py-3.5 px-4">Email</th>
+                                <th class="py-3.5 px-4">Major</th>
+                                <th class="py-3.5 px-4">Class Year</th>
+                                <th class="py-3.5 px-5 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#334155]/30 text-sm">
+                            {% for student in students %}
+                            <tr class="hover:bg-[#1e293b]/40 transition-colors">
+                                <!-- Name Column -->
+                                <td class="py-4 px-5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-md">
+                                            {{ student.first_name|first|upper }}{{ student.last_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-white block">{{ student.first_name }} {{ student.last_name }}</span>
+                                            <span class="text-xs text-[#8d90a0]">User ID: #{{ student.user.id }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Email Column -->
+                                <td class="py-4 px-4 text-xs font-mono text-[#c3c6d7]">
+                                    {{ student.user.email }}
+                                </td>
+
+                                <!-- Major Column -->
+                                <td class="py-4 px-4 text-xs">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-medium">
+                                        {{ student.major|default:"Undeclared" }}
+                                    </span>
+                                </td>
+
+                                <!-- Class Year Column -->
+                                <td class="py-4 px-4 text-xs text-[#8d90a0]">
+                                    {{ student.class_of|default:"N/A" }}
+                                </td>
+
+                                <!-- Actions Column -->
+                                <td class="py-4 px-5 text-right">
+                                    <form method="POST" action="{% url 'administration:remove_student' student.user.id %}" class="inline-block"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete student {{ student.first_name|escapejs }} {{ student.last_name|escapejs }}? All related data will be cascade-deleted.');">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-semibold text-red-400 hover:text-red-300 border border-red-500/30 inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer">
+                                            <span class="material-symbols-outlined text-[15px]">delete</span>
+                                            <span>Remove</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="glass-panel p-8 rounded-2xl border border-[#334155]/50 text-center text-[#8d90a0] text-sm">
+                No students registered yet.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

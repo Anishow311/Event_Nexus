@@ -78,19 +78,16 @@
             <div id="sidebarEventsContainer" class="flex flex-col gap-3">
                 <!-- Dynamic Event Loop -->
                 {% for event in events %}
-                <div
-                    class="glass-panel rounded-xl p-4 border border-[#334155]/50 hover:border-blue-500/50 transition-colors group cursor-pointer relative overflow-hidden bg-[#0a0e14]/50">
+                <div class="glass-panel rounded-xl p-4 border border-[#334155]/50 hover:border-blue-500/50 transition-colors group cursor-pointer relative overflow-hidden bg-[#0a0e14]/50">
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
                     <div class="pl-3">
                         <div class="flex items-center gap-2 mb-1.5">
-                            <span
-                                class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">{{
-                                event.date|date:"M j" }}</span>
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">{{ event.date|date:"M j" }}</span>
                             <span class="text-xs font-semibold text-[#8d90a0]">{{ event.time|time:"g:i A" }}</span>
                         </div>
-                        <h4
-                            class="text-white font-bold text-sm mb-1.5 group-hover:text-blue-400 transition-colors leading-tight">
-                            {{ event.title }}</h4>
+                        <h4 class="text-white font-bold text-sm mb-1.5 group-hover:text-blue-400 transition-colors leading-tight">
+                            {{ event.title }}
+                        </h4>
                         <div class="flex items-center gap-1.5 text-xs text-[#8d90a0]">
                             <span class="material-symbols-outlined text-[14px]">location_on</span>
                             <span class="truncate">{{ event.venue }}</span>

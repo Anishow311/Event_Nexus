@@ -70,3 +70,25 @@ def reject_club(request, club_id):
 
         messages.warning(request, f"Club registration for '{club_name}' has been rejected and removed.")
     return redirect("admin_dashboard")
+
+
+@admin_required
+def remove_club(request, club_id):
+    """
+    Remove an active club organization by deleting its associated core User account.
+    Cascades to delete the ClubProfile and all associated events automatically.
+    """
+    if request.method == "POST":
+        club = get_object_or_404(ClubProfile, id=club_id)
+        club_name = club.club_name
+        user = club.user
+
+        if user:
+            user.delete()
+        else:
+            club.delete()
+
+        messages.success(request, f"Club '{club_name}' and all associated events have been permanently removed.")
+
+    return redirect("administration:admin_dashboard")
+

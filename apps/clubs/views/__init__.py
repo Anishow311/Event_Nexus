@@ -7,6 +7,8 @@ from .members import (
     process_request_view,
     membership_requests,
     request_membership,
+    club_roster,
+    manage_memberships,
 )
 
 __all__ = [
@@ -21,6 +23,8 @@ __all__ = [
     "delete_post",
     "toggle_post_like",
     "memberships_list_view",
+    "club_roster",
+    "manage_memberships",
     "pending_requests_view",
     "process_request_view",
     "membership_requests",

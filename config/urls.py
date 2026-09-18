@@ -25,11 +25,13 @@ urlpatterns = [
 
     # Dedicated Domains
     path("student/", include("apps.students.urls")),
+    path("students/", include(("apps.students.urls", "students"), namespace="students")),
     path("club/", include("apps.clubs.urls")),
     path("clubs/", include(("apps.clubs.urls", "clubs"), namespace="clubs")),
     path("events/", include("apps.events.urls")),
     path("event/", include("apps.events.urls")),
     path("admin-portal/", include("apps.administration.urls")),
+    path("administration/", include(("apps.administration.urls", "administration"), namespace="administration")),
 
     # Backward Compatibility Aliases for /dashboard/*
     path("dashboard/student/", include("apps.students.urls")),

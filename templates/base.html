@@ -172,10 +172,15 @@
                     <span class="material-symbols-outlined">groups</span>
                     Manage Clubs
                 </a>
-                <a href="{% url 'admin_dashboard' %}#system-reports"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_reports %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
-                    <span class="material-symbols-outlined">monitoring</span>
-                    System Reports
+                <a href="{% url 'manage_students' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_students %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">school</span>
+                    Manage Students
+                </a>
+                <a href="{% url 'manage_events' %}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% block nav_admin_events %}text-[#c3c6d7] hover:bg-[#1e293b] hover:text-white{% endblock %} transition-colors">
+                    <span class="material-symbols-outlined">event</span>
+                    Manage Events
                 </a>
                 {% endblock %}
             {% endif %}
@@ -310,9 +315,13 @@
                 <span class="material-symbols-outlined">groups</span>
                 <span class="text-[10px] font-medium">Clubs</span>
             </a>
-            <a href="{% url 'admin_dashboard' %}#system-reports" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
-                <span class="material-symbols-outlined">monitoring</span>
-                <span class="text-[10px] font-medium">Reports</span>
+            <a href="{% url 'manage_students' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">school</span>
+                <span class="text-[10px] font-medium">Students</span>
+            </a>
+            <a href="{% url 'manage_events' %}" class="flex flex-col items-center gap-1 text-[#8d90a0] hover:text-white">
+                <span class="material-symbols-outlined">event</span>
+                <span class="text-[10px] font-medium">Events</span>
             </a>
         {% endif %}
     </nav>

@@ -10,5 +10,7 @@ urlpatterns = [
     path("registrations/", views.my_registrations, name="my_registrations"),
     path("settings/", views.student_settings, name="student_settings"),
     path("feed/new/", views.fetch_new_feed_items, name="fetch_new_feed_items"),
+    path("clubs/", views.student_joined_clubs, name="joined_clubs"),
+    path("joined-clubs/", views.student_joined_clubs),
 ]
 

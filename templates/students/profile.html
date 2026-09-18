@@ -16,12 +16,15 @@
     </div>
 
     <!-- Profile Info & Avatar -->
-    <div class="max-w-4xl mx-auto px-6 relative -mt-16 md:-mt-24 flex flex-col md:flex-row items-end md:items-center gap-6">
+    <div
+        class="max-w-4xl mx-auto px-6 relative -mt-16 md:-mt-24 flex flex-col md:flex-row items-end md:items-center gap-6">
         <div class="relative group cursor-pointer shrink-0">
-            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#020617] overflow-hidden bg-[#1e293b] shadow-xl flex items-center justify-center relative z-10 text-5xl md:text-6xl font-bold text-blue-400">
+            <div
+                class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#020617] overflow-hidden bg-[#1e293b] shadow-xl flex items-center justify-center relative z-10 text-5xl md:text-6xl font-bold text-blue-400">
                 {{ user.student_profile.first_name|first|default:"S" }}
             </div>
-            <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+            <div
+                class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <span class="material-symbols-outlined text-white">photo_camera</span>
             </div>
         </div>
@@ -52,10 +55,10 @@
                     <span class="text-2xl font-bold text-white">{{ user.student_profile.registrations.count|default:"0" }}</span>
                     <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold">Events Attended</span>
                 </div>
-                <div class="flex flex-col">
-                    <span class="text-2xl font-bold text-white">0</span>
-                    <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold">Clubs Joined</span>
-                </div>
+                <a href="{% url 'students:joined_clubs' %}" class="flex flex-col group hover:bg-blue-500/10 cursor-pointer rounded-lg p-2 -m-2 transition-colors">
+                    <span class="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">{{ joined_clubs_count|default:"0" }}</span>
+                    <span class="text-xs text-[#8d90a0] uppercase tracking-wider font-semibold group-hover:text-blue-300 transition-colors">Clubs Joined</span>
+                </a>
             </div>
         </div>
     </div>
@@ -65,92 +68,69 @@
 <div class="w-full border-b border-[#334155]/50 mb-8 sticky top-0 md:top-0 z-20 bg-[#020617]/80 backdrop-blur-md">
     <div class="max-w-4xl mx-auto px-6 flex gap-8 overflow-x-auto no-scrollbar">
         <button class="text-sm py-3 border-b-2 border-blue-500 text-blue-400 font-bold whitespace-nowrap">About</button>
-        <button class="text-sm py-3 border-b-2 border-transparent text-[#8d90a0] hover:text-[#dfe2eb] transition-colors whitespace-nowrap">My Clubs</button>
-        <button class="text-sm py-3 border-b-2 border-transparent text-[#8d90a0] hover:text-[#dfe2eb] transition-colors whitespace-nowrap">Past Events</button>
     </div>
 </div>
 
-<!-- Main Content Area: 2-Column Grid -->
-<div class="max-w-4xl mx-auto px-6 pb-12 grid grid-cols-1 md:grid-cols-12 gap-6">
-
-    <!-- Left Column: About & Info -->
-    <div class="md:col-span-5 flex flex-col gap-6">
-        <!-- About Details Glass Card -->
-        <div class="glass-panel rounded-xl p-6 flex flex-col gap-4">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <span class="material-symbols-outlined text-blue-400">info</span> Info
-            </h2>
-
-            <div class="flex flex-col gap-3">
-                <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">mail</span>
-                    <div>
-                        <p class="text-xs text-[#8d90a0] font-semibold">Email</p>
-                        <p class="text-sm text-white">{{ user.email }}</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">school</span>
-                    <div>
-                        <p class="text-xs text-[#8d90a0] font-semibold">Major</p>
-                        <p class="text-sm {% if user.student_profile.major %}text-white font-medium{% else %}text-[#8d90a0] italic{% endif %}">
-                            {{ user.student_profile.major|default:"Not set" }}
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">event</span>
-                    <div>
-                        <p class="text-xs text-[#8d90a0] font-semibold">Class of</p>
-                        <p class="text-sm {% if user.student_profile.class_of %}text-white font-medium{% else %}text-[#8d90a0] italic{% endif %}">
-                            {{ user.student_profile.class_of|default:"Not set" }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-2">
-                <p class="text-xs text-[#8d90a0] font-semibold mb-2">Interests</p>
-                <div class="flex flex-wrap gap-2">
-                    {% if user.student_profile.get_interests_list %}
-                        {% for interest in user.student_profile.get_interests_list %}
-                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">{{ interest }}</span>
-                        {% endfor %}
-                    {% else %}
-                        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">Technology</span>
-                        <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-semibold border border-purple-500/30">Networking</span>
-                        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">Events</span>
-                    {% endif %}
-                    <button type="button" onclick="openEditModal()"
-                        class="px-3 py-1 bg-[#1e293b] text-[#8d90a0] hover:text-white rounded-full text-xs font-semibold border border-[#334155] transition-colors">+ Edit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column: Recent Activity / Feed -->
-    <div class="md:col-span-7 flex flex-col gap-6">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2 mb-2">
-            <span class="material-symbols-outlined text-blue-400">history</span> Recent Activity
+<!-- Main Content Area -->
+<div class="max-w-4xl mx-auto px-6 pb-12">
+    <!-- About Details Glass Card -->
+    <div class="glass-panel rounded-xl p-6 md:p-8 flex flex-col gap-6">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-400">info</span> Info
         </h2>
 
-        <!-- Empty State Card -->
-        <div class="glass-panel p-8 rounded-2xl text-center flex flex-col items-center gap-3 border border-[#334155]/50">
-            <span class="material-symbols-outlined text-5xl text-[#8d90a0]">local_activity</span>
-            <h3 class="text-white font-bold text-lg">No recent activity</h3>
-            <p class="text-sm text-[#8d90a0]">You haven't registered for any events recently.</p>
-            <a href="{% url 'student_dashboard' %}"
-                class="mt-2 px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg font-semibold text-sm hover:bg-blue-600/30 transition-colors">
-                Browse Events
-            </a>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">mail</span>
+                <div>
+                    <p class="text-xs text-[#8d90a0] font-semibold">Email</p>
+                    <p class="text-sm text-white">{{ user.email }}</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">school</span>
+                <div>
+                    <p class="text-xs text-[#8d90a0] font-semibold">Major</p>
+                    <p class="text-sm {% if user.student_profile.major %}text-white font-medium{% else %}text-[#8d90a0] italic{% endif %}">
+                        {{ user.student_profile.major|default:"Not set" }}
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-[#8d90a0] text-sm mt-1">event</span>
+                <div>
+                    <p class="text-xs text-[#8d90a0] font-semibold">Class of</p>
+                    <p class="text-sm {% if user.student_profile.class_of %}text-white font-medium{% else %}text-[#8d90a0] italic{% endif %}">
+                        {{ user.student_profile.class_of|default:"Not set" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-[#334155]/40">
+            <p class="text-xs text-[#8d90a0] font-semibold mb-2">Interests</p>
+            <div class="flex flex-wrap gap-2">
+                {% if user.student_profile.get_interests_list %}
+                    {% for interest in user.student_profile.get_interests_list %}
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">{{ interest }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">Technology</span>
+                    <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-semibold border border-purple-500/30">Networking</span>
+                    <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold border border-blue-500/30">Events</span>
+                {% endif %}
+                <button type="button" onclick="openEditModal()"
+                    class="px-3 py-1 bg-[#1e293b] text-[#8d90a0] hover:text-white rounded-full text-xs font-semibold border border-[#334155] transition-colors">+ Edit</button>
+            </div>
         </div>
     </div>
-
 </div>
 
 <!-- Edit Profile Modal Popup -->
-<div id="editProfileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
-    <div id="modalContent" class="glass-panel w-full max-w-lg rounded-2xl p-6 md:p-8 border border-[#334155] shadow-2xl scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto no-scrollbar relative bg-[#0f172a]/95">
+<div id="editProfileModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div id="modalContent"
+        class="glass-panel w-full max-w-lg rounded-2xl p-6 md:p-8 border border-[#334155] shadow-2xl scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto no-scrollbar relative bg-[#0f172a]/95">
         <!-- Modal Header -->
         <div class="flex items-center justify-between pb-4 border-b border-[#334155]/50 mb-6">
             <div class="flex items-center gap-3">
@@ -159,7 +139,8 @@
                 </div>
                 <h2 class="text-xl font-bold text-white">Edit Profile</h2>
             </div>
-            <button type="button" onclick="closeEditModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors">
+            <button type="button" onclick="closeEditModal()"
+                class="w-8 h-8 rounded-full flex items-center justify-center text-[#8d90a0] hover:text-white hover:bg-[#1e293b] transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
@@ -167,7 +148,7 @@
         <!-- Form -->
         <form method="POST" action="{% url 'student_profile' %}" class="flex flex-col gap-4">
             {% csrf_token %}
-            
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">First Name</label>
@@ -190,19 +171,22 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Major</label>
-                    <input type="text" name="major" value="{{ user.student_profile.major|default:'' }}" placeholder="e.g. Computer Science"
+                    <input type="text" name="major" value="{{ user.student_profile.major|default:'' }}"
+                        placeholder="e.g. Computer Science"
                         class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Class of</label>
-                    <input type="text" name="class_of" value="{{ user.student_profile.class_of|default:'' }}" placeholder="e.g. 2027"
+                    <input type="text" name="class_of" value="{{ user.student_profile.class_of|default:'' }}"
+                        placeholder="e.g. 2027"
                         class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                 </div>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-[#8d90a0] uppercase tracking-wider mb-1.5">Interests (Comma separated)</label>
-                <input type="text" name="interests" value="{{ user.student_profile.interests|default:'' }}" placeholder="e.g. Technology, AI, Photography, Design"
+                <input type="text" name="interests" value="{{ user.student_profile.interests|default:'' }}"
+                    placeholder="e.g. Technology, AI, Photography, Design"
                     class="w-full bg-[#020617]/70 border border-[#334155] rounded-xl px-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                 <p class="text-[11px] text-[#8d90a0] mt-1">Separate tags with commas</p>
             </div>
@@ -247,14 +231,14 @@
     }
 
     // Close when clicking backdrop
-    document.getElementById('editProfileModal').addEventListener('click', function(e) {
+    document.getElementById('editProfileModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeEditModal();
         }
     });
 
     // Close on Escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeEditModal();
         }
